@@ -22,8 +22,8 @@ jobs:
           # ajv-cli — JSON Schema validation
           npm install -g ajv-cli ajv-formats
 
-          # yq — YAML/frontmatter parsing
-          pip install yq
+          # yq — YAML/frontmatter parsing (pipx avoids PEP 668 externally-managed-environment errors)
+          pipx install yq
 
       - name: Run validate.sh
         run: |

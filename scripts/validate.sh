@@ -3,7 +3,7 @@
 #
 # Checks:  1. JSON syntax (jq)
 #          2. JSON Schema (ajv-cli)     — requires: npm install -g ajv-cli ajv-formats
-#          3. YAML frontmatter (yq)    — requires: pip install yq
+#          3. YAML frontmatter (yq)    — requires: pipx install yq
 #          4. Shell script safety      — requires: shellcheck
 #          5. Kebab-case plugin names
 #          6. Claude plugin validate   — best-effort (requires claude CLI)
@@ -40,14 +40,14 @@ else
   fail "marketplace.json has JSON syntax errors"
 fi
 
-# plugin.json files
-find "$ROOT/plugins" -name "plugin.json" 2>/dev/null | while read -r f; do
+# plugin.json files — process substitution keeps ERRORS in the current shell
+while IFS= read -r f; do
   if jq empty "$f" 2>/dev/null; then
     pass "$(basename "$(dirname "$(dirname "$f")")")/plugin.json — valid JSON"
   else
     fail "$f — JSON syntax error"
   fi
-done
+done < <(find "$ROOT/plugins" -name "plugin.json" 2>/dev/null)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 2. JSON Schema validation (ajv-cli)
@@ -57,6 +57,7 @@ echo "── 2. JSON Schema ──"
 if command -v ajv > /dev/null 2>&1; then
   if ajv validate \
       --spec=draft7 \
+      -c ajv-formats \
       -s "$ROOT/schemas/marketplace.schema.json" \
       -d "$CATALOG" \
       --errors=text 2>&1; then
@@ -65,11 +66,13 @@ if command -v ajv > /dev/null 2>&1; then
     fail "marketplace.json schema validation failed"
   fi
 
-  find "$ROOT/plugins" -name "plugin.json" 2>/dev/null | while read -r f; do
+  # Process substitution keeps ERRORS in the current shell (not a subshell)
+  while IFS= read -r f; do
     PLUGIN_DIR="$(dirname "$(dirname "$f")")"
     NAME="$(basename "$PLUGIN_DIR")"
     if ajv validate \
         --spec=draft7 \
+        -c ajv-formats \
         -s "$ROOT/schemas/plugin.schema.json" \
         -d "$f" \
         --errors=text 2>&1; then
@@ -77,7 +80,7 @@ if command -v ajv > /dev/null 2>&1; then
     else
       fail "$NAME/plugin.json schema validation failed"
     fi
-  done
+  done < <(find "$ROOT/plugins" -name "plugin.json" 2>/dev/null)
 else
   warn "ajv not found — skipping schema validation (run: npm install -g ajv-cli ajv-formats)"
 fi
@@ -100,7 +103,7 @@ if command -v yq > /dev/null 2>&1; then
     fi
   done < <(find "$ROOT/plugins" \( -name "SKILL.md" -o -name "*.md" -path "*/agents/*" -o -name "*.md" -path "*/commands/*" \) -print0 2>/dev/null)
 else
-  warn "yq not found — skipping frontmatter validation (run: pip install yq)"
+  warn "yq not found — skipping frontmatter validation (run: pipx install yq)"
 fi
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -109,7 +112,7 @@ fi
 echo ""
 echo "── 4. Shell safety (shellcheck) ──"
 if command -v shellcheck > /dev/null 2>&1; then
-  SHELL_FILES=$(find "$ROOT/scripts" "$ROOT/plugins" -type f \( -name "*.sh" -o -perm -111 \) 2>/dev/null | grep -v ".git")
+  SHELL_FILES=$(find "$ROOT/scripts" "$ROOT/plugins" -type f \( -name "*.sh" -o -perm -111 \) 2>/dev/null | grep -vF ".git")
   if [ -z "$SHELL_FILES" ]; then
     info "No shell scripts found"
   else

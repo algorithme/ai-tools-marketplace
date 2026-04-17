@@ -57,7 +57,12 @@
           "oneOf": [
             {
               "type": "string",
-              "description": "Relative path within the marketplace repo (must start with ./).",
+              "description": "Plain plugin folder name resolved via metadata.pluginRoot (e.g. \"my-plugin\").",
+              "pattern": "^[a-z0-9][a-z0-9-]*[a-z0-9]$"
+            },
+            {
+              "type": "string",
+              "description": "Explicit relative path within the marketplace repo (must start with ./).",
               "pattern": "^\\./[^.]"
             },
             { "$ref": "#/$defs/sourceGithub" },
