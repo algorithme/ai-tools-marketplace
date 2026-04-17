@@ -1,0 +1,27 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node / npm (used by validation tools: ajv-cli)
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Python (used by yq if installed via pip)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Local env files
+.env
+.env.local
+
+# Validation artefacts
+.ajv-cache/
