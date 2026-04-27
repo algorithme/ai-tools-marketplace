@@ -6,7 +6,7 @@
 
 The marketplace needs to reference plugin source code somewhere. Options considered:
 
-1. **Monorepo**: all plugins live under `plugins/<name>/` in this same repo. `marketplace.json` uses relative paths (`source: "<name>"` with `pluginRoot: "./plugins"`).
+1. **Monorepo**: all plugins live under `plugins/<name>/` in this same repo. `marketplace.json` uses explicit relative paths (`source: "./plugins/<name>"`).
 2. **Federated repos**: each plugin lives in its own GitHub repo. `marketplace.json` uses `source: {source: "github", repo: "omorel/<name>"}`.
 3. **Hybrid**: start monorepo, graduate individual plugins to their own repos when they grow large enough.
 
@@ -14,11 +14,13 @@ The marketplace needs to reference plugin source code somewhere. Options conside
 
 Use the **monorepo with relative paths** layout for all initial plugins.
 
-`marketplace.json` sets `metadata.pluginRoot: "./plugins"` so plugin entries can write a short source string instead of a full relative path:
+Plugin entries use explicit `./`-prefixed paths, as required by the Claude Code validator:
 
 ```json
-{ "name": "my-plugin", "source": "my-plugin" }
+{ "name": "my-plugin", "source": "./plugins/my-plugin" }
 ```
+
+Note: the spec documents a `pluginRoot` shorthand that allows bare names like `"source": "my-plugin"`, but the `claude plugin validate` tool rejects that form. Always use the explicit `./plugins/<name>` form.
 
 ## Consequences
 
@@ -34,7 +36,7 @@ Use the **monorepo with relative paths** layout for all initial plugins.
 - If a plugin grows to need independent versioning and CI, it must be graduated to its own repo (see "Plugin graduation" below).
 
 ### Neutral
-- The `schemas/marketplace.schema.json` enforces that relative-path `source` strings start with `./` when they are full paths, and that plain folder names resolve through `pluginRoot`.
+- The `schemas/marketplace.schema.json` enforces that relative-path `source` strings start with `./`, matching what `claude plugin validate` actually accepts.
 
 ## Plugin graduation policy
 

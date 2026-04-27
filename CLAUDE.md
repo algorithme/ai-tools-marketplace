@@ -65,7 +65,7 @@ See `adr/` for the full list. Quick summary:
 
 | # | Decision |
 |---|---|
-| 0001 | Monorepo with relative-path sources; `pluginRoot: "./plugins"` |
+| 0001 | Monorepo with explicit relative-path sources (`"./plugins/<name>"`) |
 | 0002 | Semver in `plugin.json`; version not set in marketplace entries |
 | 0003 | `scripts/validate.sh` is the validation authority; `claude plugin validate` is best-effort |
 | 0004 | Modular docs — one file per topic |
