@@ -1,0 +1,12 @@
+{
+  "name": "update-manager",
+  "version": "0.1.0",
+  "description": "Ecosystem-aware dependency update orchestrator: discover → plan → apply → gate → PR.",
+  "author": {
+    "name": "Olivier Morel",
+    "email": "olivier@devbox.ch"
+  },
+  "license": "MIT",
+  "keywords": ["deps", "maintenance", "automation", "rust", "python", "node"],
+  "skills": "./skills/"
+}

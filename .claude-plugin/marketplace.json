@@ -9,5 +9,17 @@
     "version": "0.1.0",
     "pluginRoot": "./plugins"
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "update-manager",
+      "source": "update-manager",
+      "description": "Ecosystem-aware dependency update orchestrator for Rust, Python, and Node.",
+      "author": {
+        "name": "Olivier Morel",
+        "email": "olivier@devbox.ch"
+      },
+      "license": "MIT",
+      "keywords": ["deps", "maintenance", "automation", "rust", "python", "node"]
+    }
+  ]
 }
