@@ -1,0 +1,11 @@
+{
+  "name": "plugin-template",
+  "version": "1.0.0",
+  "description": "Replace this with a one-line description of your plugin.",
+  "author": {
+    "name": "Your Name",
+    "email": "you@example.com"
+  },
+  "license": "MIT",
+  "keywords": []
+}

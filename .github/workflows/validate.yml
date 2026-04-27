@@ -1,0 +1,43 @@
+name: Validate
+
+on:
+  push:
+    branches: [main, initialization]
+  pull_request:
+
+jobs:
+  validate:
+    name: Validate marketplace & plugins
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install validation tools
+        run: |
+          # jq — JSON syntax
+          sudo apt-get install -y jq shellcheck
+
+          # ajv-cli — JSON Schema validation
+          npm install -g ajv-cli ajv-formats
+
+          # yq — YAML/frontmatter parsing (pipx avoids PEP 668 externally-managed-environment errors)
+          pipx install yq
+
+      - name: Run validate.sh
+        run: |
+          chmod +x scripts/validate.sh
+          ./scripts/validate.sh
+
+      - name: Claude plugin validate (informational)
+        # The Claude Code CLI is not guaranteed to be installed in CI.
+        # This step is best-effort and never blocks the PR.
+        # See adr/0003-validation-and-ci.md for rationale.
+        continue-on-error: true
+        run: |
+          if command -v claude > /dev/null 2>&1; then
+            claude plugin validate .
+          else
+            echo "claude CLI not found — skipping. Install @anthropic-ai/claude-code to run locally."
+          fi
