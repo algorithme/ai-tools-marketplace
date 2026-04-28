@@ -2,9 +2,9 @@
 
 > Ecosystem-aware dependency update orchestrator: discover → plan → apply → gate → PR.
 
-Polyglot projects accumulate dependencies across Rust, Python, and Node ecosystems and need a
-repeatable way to apply updates tier by tier (security → patch → minor → major) without
-breaking the build. `update-manager` discovers manifests in the host project, computes
+Polyglot projects accumulate dependencies across Rust, Python, Node, container base images, and
+CI workflows and need a repeatable way to apply updates tier by tier (security → patch → minor →
+major) without breaking the build. `update-manager` discovers manifests in the host project, computes
 candidate bumps for a chosen tier, applies them, runs the project's quality gate, and opens a
 reviewable PR. Per-project quirks live in a generated-but-editable `inventory.md`.
 
@@ -18,17 +18,20 @@ reviewable PR. Per-project quirks live in a generated-but-editable `inventory.md
 
 | Skill | Description |
 |---|---|
-| `/update-manager` | Discover, plan, apply, gate, and PR dependency updates across detected ecosystems. |
+| `/update-manager` | Discover, plan, apply, gate, and PR dependency updates across Rust, Python, Node, Docker, and GitHub Actions ecosystems. |
 
 ## Usage
 
 ```
-/update-manager refresh                # generate or update inventory.md
-/update-manager rust patch              # apply Rust patch-tier bumps
-/update-manager python security         # apply Python security advisories
-/update-manager node minor              # bump Node deps to latest minor
-/update-manager all all --dry-run       # plan everything without changing files
-/update-manager rust major --no-pr      # commit on branch, skip PR creation
+/update-manager refresh                      # generate or update inventory.md
+/update-manager rust patch                   # apply Rust patch-tier bumps
+/update-manager python security              # apply Python security advisories
+/update-manager node minor                   # bump Node deps to latest minor
+/update-manager dockerfile patch             # refresh Dockerfile base-image digests
+/update-manager docker-compose security      # scan Compose service images for CVEs
+/update-manager github-actions minor         # bump Actions within current major
+/update-manager all all --dry-run            # plan everything without changing files
+/update-manager rust major --no-pr           # commit on branch, skip PR creation
 ```
 
 ## Requirements
@@ -38,6 +41,8 @@ reviewable PR. Per-project quirks live in a generated-but-editable `inventory.md
   - **Rust:** `cargo`, optionally `cargo-audit`, `cargo-edit`.
   - **Python:** one of `uv`, `poetry`, `pipenv`, or `pip` + `pip-audit`.
   - **Node:** one of `npm`, `yarn`, `pnpm`, or `bun`. `npm-check-updates` is invoked via `npx`.
+  - **Dockerfile / Docker Compose:** `docker` (with `docker scout` or `trivy` for CVE scanning), optionally `hadolint`, `yamlfmt`.
+  - **GitHub Actions:** `actionlint`, optionally `pinact` (SHA pinning automation), `yamlfmt`.
 
 The skill prompts before installing any missing tooling.
 

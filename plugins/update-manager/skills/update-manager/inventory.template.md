@@ -3,13 +3,16 @@
 This file is **generated** at the host project root by `/update-manager refresh` and edited by
 hand to record per-project quirks. The schema below is the canonical reference.
 
+For capping automatic version upgrades on specific images or packages, see
+`update-manager.constraints.yml` (schema in `constraints.template.yml`).
+
 ## Schema
 
 ```yaml
 subprojects:
   - id: <unique-slug>                    # stable key used to merge across refreshes
     path: <relative-path-to-subproject>  # from the host project root
-    ecosystem: rust | python | node      # selects the playbook
+    ecosystem: rust | python | node | dockerfile | docker-compose | github-actions  # selects the playbook
     working_directory: <dir>             # cd into this before running any command
     manifests:                           # files staged after Commit
       - <manifest-file-1>
@@ -98,4 +101,86 @@ subprojects:
         reason:  "Major bumps require concurrency review"
     notes:
       - "sqlx query cache lives in services/api/.sqlx — regenerate after bumping sqlx."
+
+  - id: api-dockerfile
+    path: services/api/Dockerfile
+    ecosystem: dockerfile
+    working_directory: services/api
+    manifests:
+      - Dockerfile
+    lockfile: null
+    manifest_hashes:
+      Dockerfile: <sha256-auto>
+    update_commands:
+      security: docker scout cves node:20-alpine
+      patch:    docker buildx imagetools inspect node:20-alpine --format '{{json .Manifest.Digest}}'
+      minor:    ""  # resolved per FROM line by the playbook
+      major:    ""  # manual-only — requires user confirmation
+    gate:
+      - docker build --check .
+    format:
+      - hadolint Dockerfile
+    prerequisites:
+      - docker info
+    excluded: []
+    manual-only:
+      - pattern: "*"
+        reason:  "Major base-image bumps change ABI — always confirm"
+    notes:
+      - "ARG NODE_VERSION=20 drives the FROM tag — update the ARG default when bumping."
+
+  - id: api-compose
+    path: docker-compose.yml
+    ecosystem: docker-compose
+    working_directory: .
+    manifests:
+      - docker-compose.yml
+    lockfile: null
+    manifest_hashes:
+      docker-compose.yml: <sha256-auto>
+    update_commands:
+      security: docker scout cves postgres:16-alpine
+      patch:    docker buildx imagetools inspect postgres:16-alpine --format '{{json .Manifest.Digest}}'
+      minor:    ""  # resolved per service image by the playbook; user confirmed via AskUserQuestion
+      major:    ""  # manual-only — major image bumps change data formats and config keys
+    gate:
+      - docker compose config -q
+    format:
+      - yamlfmt docker-compose.yml
+    prerequisites:
+      - docker info
+    excluded: []
+    manual-only:
+      - pattern: "postgres"
+        reason:  "Major PostgreSQL bumps change WAL format — requires DBA sign-off"
+    notes:
+      - "db service uses postgres:16-alpine; postgres:17 released — check release notes before upgrading."
+      - "override file docker-compose.override.yml declares additional image refs not tracked here."
+
+  - id: ci-workflows
+    path: .github/workflows
+    ecosystem: github-actions
+    working_directory: .
+    manifests:
+      - .github/workflows/validate.yml
+    lockfile: null
+    manifest_hashes:
+      .github/workflows/validate.yml: <sha256-auto>
+    update_commands:
+      security: actionlint
+      patch:    pinact run --dry-run   # re-resolve SHAs; replace with gh api calls if pinact absent
+      minor:    ""  # resolved per uses: line by the playbook
+      major:    ""  # manual-only
+    gate:
+      - actionlint
+    format:
+      - yamlfmt .github/
+    prerequisites:
+      - gh auth status
+    excluded: []
+    manual-only:
+      - pattern: "*"
+        reason:  "Major action bumps change inputs/outputs and OIDC permissions — always confirm"
+    notes:
+      - "Repo uses tag pinning (@v4). Consider SHA pinning for OpenSSF Scorecard compliance."
 ```
