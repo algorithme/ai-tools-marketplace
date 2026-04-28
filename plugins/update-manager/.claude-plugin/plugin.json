@@ -1,12 +1,12 @@
 {
   "name": "update-manager",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Ecosystem-aware dependency update orchestrator: discover → plan → apply → gate → PR. Includes Renovate config generation.",
   "author": {
     "name": "Olivier Morel",
     "email": "olivier@devbox.ch"
   },
   "license": "MIT",
-  "keywords": ["deps", "maintenance", "automation", "rust", "python", "node", "docker", "github-actions", "ci", "renovate", "automerge"],
+  "keywords": ["deps", "maintenance", "automation", "rust", "python", "node", "docker", "terraform", "opentofu", "iac", "github-actions", "ci", "renovate", "automerge"],
   "skills": "./skills/"
 }

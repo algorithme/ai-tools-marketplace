@@ -1,5 +1,5 @@
 ---
-description: Tier-by-tier dependency updater for Rust, Python, Node, Docker, and GitHub Actions — discover, apply, gate, PR.
+description: Tier-by-tier dependency updater for Rust, Python, Node, Docker, Terraform/OpenTofu, and GitHub Actions — discover, apply, gate, PR.
 ---
 
 # update-manager
@@ -14,14 +14,14 @@ live in the host project's `inventory.md`, generated and refreshed by this skill
 ```
 /update-manager                          # all ecosystems, all tiers in sequence
 /update-manager refresh                  # re-scan host project → regenerate inventory.md
-/update-manager <ecosystem>              # rust | python | node | dockerfile | docker-compose | github-actions | all
+/update-manager <ecosystem>              # rust | python | node | dockerfile | docker-compose | terraform | github-actions | all
 /update-manager <ecosystem> <tier>       # tier = security | patch | minor | major | all
 /update-manager --dry-run                # show plan, no edits
 /update-manager --no-pr                  # commit on branch, skip gh pr create
 ```
 
 Argument parsing:
-- First positional arg: `refresh` OR an ecosystem (`rust`, `python`, `node`, `dockerfile`, `docker-compose`, `github-actions`, `all`).
+- First positional arg: `refresh` OR an ecosystem (`rust`, `python`, `node`, `dockerfile`, `docker-compose`, `terraform` (aliases: `tofu`, `opentofu`), `github-actions`, `all`).
 - Second positional arg: a tier (`security`, `patch`, `minor`, `major`, `all`).
 - Flags: `--dry-run`, `--no-pr`.
 - Missing tier → all tiers. Missing ecosystem → all ecosystems.
@@ -99,8 +99,8 @@ For each `(subproject, tier)` in scope:
 1. `cd` into `inventory.working_directory`.
 2. Check whether the playbook prescribes a per-advisory loop for this `(ecosystem, tier)`
    combination (currently: bun security; pnpm security when the resolved version is < 9;
-   dockerfile security per FROM line; docker-compose security per service; github-actions security
-   per advisory). When
+   dockerfile security per FROM line; docker-compose security per service; terraform security per
+   provider; github-actions security per advisory). When
    it does, run the scan command, parse its output, and apply a targeted package-level update
    per advisory instead of running `inventory.update_commands[tier]`.
 3. Otherwise, run `inventory.update_commands[tier]`.
@@ -148,15 +148,16 @@ After Gate passes, commit atomically:
 ## Multi-ecosystem ordering
 
 For `all` (or multiple explicit ecosystems), run **sequentially** in this order:
-`rust → python → node → dockerfile → docker-compose → github-actions`. Within each ecosystem,
+`rust → python → node → dockerfile → docker-compose → terraform → github-actions`. Within each ecosystem,
 run the requested tiers in order `security → patch → minor → major`. Each `(ecosystem, tier)`
 cycle completes its full Apply → Fix → Format → Gate → Commit pipeline before the next one
 starts. All commits land on the same branch; the PR is opened once, after all ecosystems are done.
 
 Ordering rationale: language-layer deps (rust/python/node) are updated first because container
-base images (dockerfile/docker-compose) often inherit or re-install them; CI workflows
-(github-actions) are updated last as they orchestrate everything. This ordering minimises rework
-if a language-layer bump invalidates a base image or CI step.
+base images (dockerfile/docker-compose) often inherit or re-install them; Terraform/OpenTofu
+(terraform) provisions the infrastructure those containers run on and is updated after images are
+stable; CI workflows (github-actions) are updated last as they orchestrate everything. This
+ordering minimises rework if a language-layer bump invalidates a base image or CI step.
 
 PR title: `deps(<ecosystem>): <tier> updates` when a single ecosystem produced all commits;
 `deps(multi): updates across <N> ecosystems` when more than one did.
@@ -206,7 +207,7 @@ A constraint is added in two ways:
 
 ```yaml
 constraints:
-  - ecosystem: docker-compose          # rust | python | node | dockerfile | docker-compose | github-actions | all
+  - ecosystem: docker-compose          # rust | python | node | dockerfile | docker-compose | terraform | github-actions | all
     package: postgres                  # image or package name; globs supported
     max_version: "17"                  # never auto-update beyond this version
     reason: "WAL format change — DBA review required"

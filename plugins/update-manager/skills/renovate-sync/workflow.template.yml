@@ -22,6 +22,10 @@ jobs:
 
       - name: Self-hosted Renovate
         uses: renovatebot/github-action@v46.1.11
+        env:
+          # Tell Renovate which repository to process. Without this, Renovate
+          # exits with "No repositories found" when run via the GH Action.
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
         with:
           configurationFile: renovate.json5
           # RENOVATE_TOKEN must be a PAT with `repo` + `workflow` scopes,
