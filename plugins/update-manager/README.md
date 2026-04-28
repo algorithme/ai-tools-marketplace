@@ -19,6 +19,32 @@ reviewable PR. Per-project quirks live in a generated-but-editable `inventory.md
 | Skill | Description |
 |---|---|
 | `/update-manager` | Discover, plan, apply, gate, and PR dependency updates across Rust, Python, Node, Docker, and GitHub Actions ecosystems. |
+| `/renovate-sync` | Generate and maintain a `renovate.json5` + GitHub Actions workflow from `inventory.md` and `constraints.yml`. |
+
+## Continuous mode — Renovate
+
+`/renovate-sync` bridges the interactive skill with Renovate's CI-driven automation:
+
+| Renovate (CI, daily) | `/update-manager` (interactive) |
+|---|---|
+| Security / patch / minor PRs | Major bumps, multi-ecosystem orchestration |
+| Automerge on safe tiers | Conflict resolution, ad-hoc / offline runs |
+
+**Bootstrap** (run once after `/update-manager refresh`):
+
+```
+/renovate-sync init
+```
+
+This generates `renovate.json5` at the repo root and `.github/workflows/renovate.yml`,
+pre-populated from `inventory.md` and `update-manager.constraints.yml`.
+
+**Required secret:** add `RENOVATE_TOKEN` to your repository's Actions secrets — a PAT with
+`repo` and `workflow` scopes (or a GitHub App token).
+
+**Staying in sync:** when you edit `inventory.md` or `update-manager.constraints.yml`, a hook
+reminds you to run `/renovate-sync` to regenerate `renovate.json5`. The generated file embeds a
+hash of its sources so drift is detected automatically.
 
 ## Usage
 

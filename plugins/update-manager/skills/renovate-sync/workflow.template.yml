@@ -1,0 +1,30 @@
+name: Renovate
+
+on:
+  schedule:
+    # Daily at 06:00 UTC — handles security, patch, and minor updates.
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+# Required permissions for Renovate to open and manage PRs.
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  renovate:
+    name: Run Renovate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Self-hosted Renovate
+        uses: renovatebot/github-action@v46.1.11
+        with:
+          configurationFile: renovate.json5
+          # RENOVATE_TOKEN must be a PAT with `repo` + `workflow` scopes,
+          # or a GitHub App token. Add it at:
+          # Settings → Secrets and variables → Actions → New repository secret
+          token: ${{ secrets.RENOVATE_TOKEN }}
