@@ -1,0 +1,51 @@
+# update-manager.constraints.yml
+#
+# Records user decisions to cap automatic version upgrades for specific images or packages.
+# Place this file in the host project root alongside inventory.md.
+# Managed by /update-manager — entries are added when you decline a bump and confirm the
+# constraint, or written by hand.
+#
+# Schema:
+#   ecosystem  — one of: rust | python | node | dockerfile | docker-compose | github-actions | all
+#   package    — image name (Docker) or package name (language ecosystems), no tag/version.
+#                Glob patterns supported (e.g. "postgres*").
+#   max_version — never auto-update beyond this version. Comparison is semver-aware.
+#                 For Docker images with variant suffixes (e.g. "16-alpine"), the numeric
+#                 prefix is compared: "16-alpine" → major 16.
+#   reason     — free-text; printed in the plan table and PR body.
+#   blocked_since — ISO date when the constraint was recorded.
+#
+# Behaviour:
+#   - During Phase 2 (Plan), any candidate bump whose new version exceeds max_version is
+#     skipped and shown as "[blocked by constraint: <reason>]" in the plan table.
+#   - Security-tier bumps that fix a CVE IGNORE constraints and always prompt the user
+#     (a CVE fix should not be silently blocked).
+#   - To remove a constraint, delete the entry and run /update-manager refresh.
+
+constraints: []
+
+# Examples (uncomment and edit):
+#
+#  - ecosystem: docker-compose
+#    package: postgres
+#    max_version: "17"
+#    reason: "PostgreSQL 18 changes WAL format — requires DBA review"
+#    blocked_since: "2026-04-28"
+#
+#  - ecosystem: dockerfile
+#    package: node
+#    max_version: "20"
+#    reason: "node:22 not yet validated by security team"
+#    blocked_since: "2026-04-28"
+#
+#  - ecosystem: all
+#    package: redis
+#    max_version: "7"
+#    reason: "Redis 8 licence change — legal review pending"
+#    blocked_since: "2026-04-28"
+#
+#  - ecosystem: github-actions
+#    package: "actions/checkout"
+#    max_version: "v4"
+#    reason: "v5 dropped Node 16 — self-hosted runners not yet updated"
+#    blocked_since: "2026-04-28"
