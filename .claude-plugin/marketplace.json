@@ -5,14 +5,12 @@
     "email": "olivier@devbox.ch"
   },
   "metadata": {
-    "description": "Olivier's personal Claude Code plugin marketplace — Skills, Agents, Hooks, MCP servers, and more.",
-    "version": "0.1.0",
-    "pluginRoot": "./plugins"
+    "description": "Olivier's personal Claude Code plugin marketplace — Skills, Agents, Hooks, MCP servers, and more."
   },
   "plugins": [
     {
       "name": "update-manager",
-      "source": "update-manager",
+      "source": "./plugins/update-manager",
       "description": "Ecosystem-aware dependency update orchestrator for Rust, Python, and Node.",
       "author": {
         "name": "Olivier Morel",

@@ -31,10 +31,10 @@
           "description": "Marketplace catalog version (semver).",
           "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-+].+)?$"
         },
-        "pluginRoot": {
-          "type": "string",
-          "description": "Base path prepended to relative plugin source entries.",
-          "pattern": "^\\."
+        "allowCrossMarketplaceDependenciesOn": {
+          "type": "array",
+          "description": "Other marketplace names whose plugins may be depended on.",
+          "items": { "type": "string" }
         }
       }
     },
@@ -55,11 +55,6 @@
         },
         "source": {
           "oneOf": [
-            {
-              "type": "string",
-              "description": "Plain plugin folder name resolved via metadata.pluginRoot (e.g. \"my-plugin\").",
-              "pattern": "^[a-z0-9][a-z0-9-]*[a-z0-9]$"
-            },
             {
               "type": "string",
               "description": "Explicit relative path within the marketplace repo (must start with ./).",
