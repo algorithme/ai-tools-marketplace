@@ -8,6 +8,5 @@
   },
   "license": "MIT",
   "keywords": ["deps", "maintenance", "automation", "rust", "python", "node", "docker", "github-actions", "ci", "renovate", "automerge"],
-  "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "skills": "./skills/"
 }
