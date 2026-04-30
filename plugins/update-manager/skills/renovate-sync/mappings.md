@@ -13,6 +13,7 @@ logic; `SKILL.md` references it for brevity.
 | `node` | `npm` | Covers npm, yarn, pnpm, bun — Renovate auto-detects lockfile format within the `npm` manager |
 | `dockerfile` | `dockerfile` | |
 | `docker-compose` | `docker-compose` | |
+| `terraform` | `terraform` | Handles `required_providers`, `module` version, and `required_version` |
 | `github-actions` | `github-actions` | Handles `uses:` refs in `.github/workflows/*.yml` |
 
 Only add entries for ecosystems actually present in `inventory.md`. Do not include an
