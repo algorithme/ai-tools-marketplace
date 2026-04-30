@@ -72,6 +72,18 @@
       automerge: false,
     },
 
+    // ── Per-ecosystem minor automerge (user opt-in via inventory.automerge_minor) ──
+    // Each entry below is generated when a subproject in inventory.md has
+    // automerge_minor: true. Placed after the default minor rule so it overrides.
+    //
+    // Example:
+    //   {
+    //     description: 'User opt-in (inventory.automerge_minor): automerge minor for github-actions',
+    //     matchManagers: ['github-actions'],
+    //     matchUpdateTypes: ['minor'],
+    //     automerge: true,
+    //   },
+
     // ── Constraints from update-manager.constraints.yml ─────────────────────
     // Each entry below is generated from a constraints.yml record.
     // Format: { matchPackageNames/matchPackagePatterns, allowedVersions, description }
