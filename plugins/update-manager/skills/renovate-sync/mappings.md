@@ -39,7 +39,7 @@ For single-subproject repos, omit `matchFileNames` — Renovate scans the whole 
 |---|---|---|
 | `security` | Built-in: `vulnerabilityAlerts` | Always enabled; labels `['security']` |
 | `patch` | `patch`, `digest`, `pin`, `lockFileMaintenance` | Automerge |
-| `minor` | `minor` | PR opened, no automerge |
+| `minor` | `minor` | PR opened, no automerge (per-ecosystem opt-in via `inventory.automerge_minor`) |
 | `major` | `major` | Dashboard approval required; label `needs-update-manager` |
 
 ## `constraints.yml` → `packageRules`
@@ -113,6 +113,35 @@ Each `excluded` entry maps to a rule that disables updates entirely for that pac
   description: '<reason>',
   matchPackageNames: ['<package-name-or-glob>'],
   enabled: false,
+},
+```
+
+## `inventory.automerge_minor` → `packageRules`
+
+Subprojects with `automerge_minor: true` produce a packageRule scoped to that ecosystem's
+manager(s). The rule is placed **after** the default `minor → automerge: false` rule so it
+overrides (Renovate evaluates `packageRules` in order; later wins).
+
+When **all** subprojects of an ecosystem opt in, scope by `matchManagers`:
+
+```json5
+{
+  description: 'User opt-in (inventory.automerge_minor): automerge minor for <eco>',
+  matchManagers: ['<manager>'],
+  matchUpdateTypes: ['minor'],
+  automerge: true,
+},
+```
+
+When only **some** subprojects of an ecosystem opt in (mixed), scope by `matchFileNames`
+instead of `matchManagers` (see "Monorepo subproject scoping" above):
+
+```json5
+{
+  description: 'User opt-in (inventory.automerge_minor): automerge minor for <eco> at <path>',
+  matchFileNames: ['<manifest-path-1>', '<manifest-path-2>'],
+  matchUpdateTypes: ['minor'],
+  automerge: true,
 },
 ```
 

@@ -76,6 +76,8 @@ Build the `renovate.json5` content according to `mappings.md`. Key decisions:
 - `branchPrefix: 'deps/'` — mirrors the manual-flow branch convention.
 - `vulnerabilityAlerts` — always enabled; labels as `['security']`.
 - `automerge` on patch/digest/pin/lockFileMaintenance `matchUpdateTypes`.
+- `automerge: true` for `minor` updates **per ecosystem**, opt-in only — see
+  "Per-ecosystem minor automerge" below.
 - Major bumps → `dependencyDashboardApproval: true` + label `needs-update-manager`.
 - **`gitAuthor`**: read `git config user.name` and `git config user.email`. Format as
   `'Name <email>'` and substitute into the `<<GIT_AUTHOR>>` marker in the template.
@@ -107,6 +109,41 @@ Preserve the content of this block verbatim inside the generated `packageRules` 
 re-generating, place the user-managed region at the end of `packageRules`, after all generated
 rules. If no such block exists in a pre-existing file, append an empty block to the generated
 output so the user knows where to add custom rules.
+
+## Per-ecosystem minor automerge
+
+For each unique ecosystem appearing in `inventory.md`:
+
+1. If every subproject of that ecosystem already has `automerge_minor` set (true or false),
+   skip — the choice is already persisted.
+2. Otherwise call `AskUserQuestion`:
+   *"Automerge minor updates for `<ecosystem>`? (default no)"*
+   with **Yes** and **No** options.
+3. Write the answer as `automerge_minor: true|false` on every unset subproject of that
+   ecosystem in `inventory.md` (preserve all other fields).
+4. When generating `renovate.json5`, for each ecosystem where at least one subproject has
+   `automerge_minor: true`:
+   - **All subprojects opted in** → emit a rule scoped by `matchManagers`:
+     ```json5
+     {
+       description: 'User opt-in (inventory.automerge_minor): automerge minor for <eco>',
+       matchManagers: ['<manager>'],
+       matchUpdateTypes: ['minor'],
+       automerge: true,
+     }
+     ```
+   - **Only some subprojects opted in** → emit a rule scoped by `matchFileNames`
+     (see `mappings.md` "Monorepo subproject scoping"):
+     ```json5
+     {
+       description: 'User opt-in (inventory.automerge_minor): automerge minor for <eco> at <path>',
+       matchFileNames: ['<manifest-path-1>', '<manifest-path-2>'],
+       matchUpdateTypes: ['minor'],
+       automerge: true,
+     }
+     ```
+   Place these rules **after** the default `minor → automerge: false` rule in
+   `packageRules` so they override it (Renovate evaluates rules in order; later wins).
 
 ## Apply phase
 
@@ -160,6 +197,7 @@ Renovate support manually or via a self-hosted runner."
 | `yq` absent | Abort with install hint (`brew install yq` / `pip install yq`). |
 | `git config user.email` empty | Prompt for `gitAuthor` value or emit a warning and write `'Renovate Bot <CHANGEME@example.com>'` as fallback. |
 | `renovate.json5` has a manual `gitAuthor` (no `<<GIT_AUTHOR>>` marker) | Leave as-is; skip auto-detection for this field. |
+| `automerge_minor` unset on a subproject | Prompt once per ecosystem at sync time; persist answer back into `inventory.md`. |
 
 ## Required tooling
 

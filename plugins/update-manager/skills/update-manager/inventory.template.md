@@ -44,6 +44,8 @@ subprojects:
       - pattern: "<glob>"
         reason:  "<why>"
 
+    automerge_minor: <bool>              # opt-in: automerge minor updates for this subproject (default false)
+
     notes:                               # printed at plan time, surfaced in PR body
       - "<free-text warning>"
 ```
@@ -66,6 +68,7 @@ When `/update-manager refresh` runs and an `inventory.md` already exists:
 | `excluded`           | **Preserved** verbatim.                                       |
 | `manual-only`        | **Preserved** verbatim.                                       |
 | `notes`              | **Preserved** verbatim.                                       |
+| `automerge_minor`    | **Preserved** verbatim.                                       |
 
 The `id` field is the merge key. If a subproject's `path` changes, keep the same `id` to retain
 its curated fields.
@@ -181,6 +184,7 @@ subprojects:
     manual-only:
       - pattern: "*"
         reason:  "Major action bumps change inputs/outputs and OIDC permissions — always confirm"
+    automerge_minor: true
     notes:
       - "Repo uses tag pinning (@v4). Consider SHA pinning for OpenSSF Scorecard compliance."
 ```
