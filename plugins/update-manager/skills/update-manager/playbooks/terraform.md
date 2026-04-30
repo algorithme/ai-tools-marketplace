@@ -46,9 +46,9 @@ command that reads or modifies infrastructure state. Version files only.
 
 | Tier     | Action |
 |----------|--------|
-| security | `trivy config --scanners config .`; per-provider CVE loop — bump each to lowest fixed version using `tfupdate`. |
+| security | Run `checkov -d . --quiet --compact -o json` for HCL misconfiguration findings (open ingress, missing encryption, public buckets, etc.). This is a misconfiguration surface, not a CVE scan. Provider-binary CVEs are tracked separately as **manual-only** — surface the HashiCorp security advisories feed (https://discuss.hashicorp.com/c/security/) and the OpenTofu security page; the user reviews and approves provider bumps by hand. |
 | patch    | Query registry API per provider/module → latest patch within current major.minor; bump with `tfupdate`. |
-| minor    | Query registry API per provider/module → latest minor within current major; bump with `tfupdate`. **AskUserQuestion** per provider before applying. |
+| minor    | Query registry API per provider/module → latest minor within current major; bump with `tfupdate`. **Before applying:** `AskUserQuestion` per provider/module — show `<source> <old-constraint>` → `<source> <new-constraint>` and ask the user to confirm. On decline, offer to record the provider/module in `update-manager.constraints.yml` (see SKILL.md § Version constraints). |
 | major    | Always `manual-only`. Surface provider changelog URL. User edits constraints; skill runs Fix + Gate after confirmation. |
 
 After any tier that modifies `.tf` files, refresh the lockfile:
@@ -57,6 +57,11 @@ After any tier that modifies `.tf` files, refresh the lockfile:
 ```
 `init -upgrade` resolves new provider binaries into cache and rewrites `.terraform.lock.hcl`
 hashes. It does not initialise remote backends or touch infrastructure state.
+
+`init -upgrade` requires outbound network access to the configured provider registries
+(`registry.terraform.io` and/or `registry.opentofu.org`). In air-gapped or restricted-egress
+environments, the security/patch/minor tiers will fail at lockfile refresh; surface this as a
+preflight warning when egress is constrained.
 
 ## Registry API
 
@@ -91,6 +96,13 @@ namespace is `hashicorp` when only the type name is present (e.g. `aws` → `has
 When `tfupdate` cannot parse the current constraint, emit a warning in the plan table and skip
 the entry rather than overwriting with an unexpected format.
 
+### Constraints check
+
+Before presenting any candidate bump (minor or major), check `update-manager.constraints.yml`
+in the host project root. If the provider source or module address matches a constraint and
+the candidate's new version exceeds `max_version`, skip the candidate — mark it as
+`[blocked by constraint]` in the plan table with the recorded reason.
+
 ## Tooling bootstrap
 
 Check at Preflight. Prompt before installing; on decline, abort with instructions.
@@ -106,12 +118,13 @@ Check at Preflight. Prompt before installing; on decline, abort with instruction
    # or: go install github.com/minamijoyo/tfupdate@latest
    ```
 
-3. **trivy** (required for security tier; same bootstrap as dockerfile playbook):
+3. **checkov** (required for security tier — HCL misconfiguration scanning):
    ```bash
-   brew install trivy
+   brew install checkov
+   # or: pipx install checkov
    ```
-   On decline, skip security tier and record `"trivy not installed — security tier skipped"` in
-   `notes`.
+   On decline, skip security tier and record `"checkov not installed — security tier skipped"`
+   in `notes`.
 
 4. **tflint** (optional gate):
    ```bash
@@ -146,13 +159,21 @@ When `refresh` generates a new inventory entry, populate `gate[]` as:
 ```yaml
 gate:
   - <tool> validate
-  # - tflint --recursive   # added only when tflint is present at refresh time
+  # - tflint --recursive   # added only when tflint is present at refresh time;
+  #                        # remind the user to run `tflint --init` after a provider
+  #                        # bump so plugin rules cover the new provider version
 ```
 
-## Per-advisory loop
+## Per-finding loop
 
-Security tier runs as a **per-provider loop**: scan → identify CVE → bump provider →
-validate → next provider. Do not batch all provider bumps in one pass.
+Security tier runs as a **per-finding loop** for misconfig results: scan → present finding →
+ask the user to confirm a remediation edit → validate → next finding. Do not batch all
+remediations in one pass. Misconfig fixes typically modify resource arguments (e.g. add
+`encryption = true`); never edit constraints, only resource blocks, and require user
+confirmation for each one.
+
+Provider-binary CVEs are out of scope for the automated loop — the tier surfaces advisory
+URLs and asks the user to approve any provider version bumps manually.
 
 ## Notes to surface in inventory
 
