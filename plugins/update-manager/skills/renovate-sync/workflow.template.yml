@@ -21,14 +21,27 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Self-hosted Renovate
-        uses: renovatebot/github-action@v46.1.11
+        uses: renovatebot/github-action@v46
         env:
-          # Tell Renovate which repository to process. Without this, Renovate
-          # exits with "No repositories found" when run via the GH Action.
-          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          # Tell Renovate which repository to process. Use the JSON-array form so
+          # the value is unambiguous to Renovate's env-var parser.
+          RENOVATE_REPOSITORIES: '["${{ github.repository }}"]'
         with:
           configurationFile: renovate.json5
-          # RENOVATE_TOKEN must be a PAT with `repo` + `workflow` scopes,
-          # or a GitHub App token. Add it at:
-          # Settings → Secrets and variables → Actions → New repository secret
+          # RENOVATE_TOKEN — add at:
+          #   Settings → Secrets and variables → Actions → New repository secret
+          #
+          # Required scopes/permissions:
+          #
+          # Classic PAT:        repo, workflow
+          #
+          # Fine-grained PAT:   Contents:        Read & Write
+          #                     Pull requests:   Read & Write
+          #                     Issues:          Read & Write
+          #                     Workflows:       Read & Write
+          #                     Commit statuses: Read   ← required for automerge to
+          #                                              evaluate CI status; silently
+          #                                              breaks automerge if missing.
+          #
+          # GitHub App: install with equivalent permissions above (preferred — avoids PAT rotation).
           token: ${{ secrets.RENOVATE_TOKEN }}

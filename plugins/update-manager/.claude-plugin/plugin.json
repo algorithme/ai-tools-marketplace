@@ -1,6 +1,6 @@
 {
   "name": "update-manager",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Ecosystem-aware dependency update orchestrator: discover → plan → apply → gate → PR. Includes Renovate config generation.",
   "author": {
     "name": "Olivier Morel",

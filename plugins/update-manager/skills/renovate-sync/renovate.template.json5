@@ -6,6 +6,12 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
 
+  // gitAuthor — auto-filled by /renovate-sync from `git config user.{name,email}`.
+  // Override this if you want Renovate commits attributed to a different identity.
+  // Without it, Renovate defaults to renovate@whitesourcesoftware.com (Mend account),
+  // which triggers "Unverified" on GitHub.com when Vigilant Mode is enabled.
+  gitAuthor: '<<GIT_AUTHOR>>',
+
   // ── Base presets ────────────────────────────────────────────────────────────
   extends: [
     'config:recommended',
