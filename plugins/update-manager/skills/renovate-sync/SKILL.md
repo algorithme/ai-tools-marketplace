@@ -77,6 +77,13 @@ Build the `renovate.json5` content according to `mappings.md`. Key decisions:
 - `vulnerabilityAlerts` — always enabled; labels as `['security']`.
 - `automerge` on patch/digest/pin/lockFileMaintenance `matchUpdateTypes`.
 - Major bumps → `dependencyDashboardApproval: true` + label `needs-update-manager`.
+- **`gitAuthor`**: read `git config user.name` and `git config user.email`. Format as
+  `'Name <email>'` and substitute into the `<<GIT_AUTHOR>>` marker in the template.
+  If either value is empty, prompt via `AskUserQuestion` with three options:
+  "Set it in git config and retry", "Enter name/email manually", or
+  "Skip (Renovate will use its Mend default — commits will show Unverified on GitHub.com)".
+  If the target `renovate.json5` already contains a `gitAuthor` line without the
+  `<<GIT_AUTHOR>>` marker, leave it unchanged (the user has a manual override).
 - Per `constraints.yml` entry → a `packageRule` with `allowedVersions: '<X.Y.Z'`.
   Docker variant-suffix handling: `16-alpine` → extract numeric prefix → `allowedVersions: '<17'`.
 - Per `inventory.manual-only[]` pattern → `dependencyDashboardApproval: true`.
@@ -125,10 +132,16 @@ output so the user knows where to add custom rules.
 The generated `.github/workflows/renovate.yml` runs the self-hosted Renovate action:
 
 - Schedule: daily at 06:00 UTC + `workflow_dispatch` for on-demand runs.
-- Required GitHub secret: `RENOVATE_TOKEN` — a Personal Access Token with `repo` and `workflow`
-  scopes (or a GitHub App token). The skill reminds the user to add it at first-time setup.
-- The workflow uses `renovatebot/github-action` pinned to a full semver tag. Use `workflow.template.yml`
-  (next to this file) as the canonical source.
+- The workflow uses `renovatebot/github-action` floated at its major version tag so Renovate
+  can keep the pin current. Use `workflow.template.yml` (next to this file) as the canonical source.
+- The skill reminds the user to add `RENOVATE_TOKEN` at first-time setup. Required scopes:
+  - **Classic PAT**: `repo`, `workflow`
+  - **Fine-grained PAT**: Contents R/W · Pull requests R/W · Issues R/W · Workflows R/W ·
+    Commit statuses **Read** (missing this scope silently prevents automerge from evaluating CI status)
+  - **GitHub App**: equivalent permissions above (preferred — avoids PAT rotation)
+- Note: when `helpers:pinGitHubActionDigests` is enabled, Renovate rewrites `uses: actions/checkout@v4`
+  to a SHA pin on its first run and re-bumps the SHA on subsequent runs. This is expected and
+  keeps Node-runtime drift bounded.
 
 If the repository remote is not on GitHub (detected via `git remote get-url origin`), skip
 workflow generation and emit a note: "Non-GitHub remote detected — skipping workflow. Add
@@ -145,6 +158,8 @@ Renovate support manually or via a self-hosted runner."
 | `constraints.yml` absent | Treat as empty list; generate without packageRules for constraints. |
 | User-managed region exists | Preserve verbatim; place at end of `packageRules`. |
 | `yq` absent | Abort with install hint (`brew install yq` / `pip install yq`). |
+| `git config user.email` empty | Prompt for `gitAuthor` value or emit a warning and write `'Renovate Bot <CHANGEME@example.com>'` as fallback. |
+| `renovate.json5` has a manual `gitAuthor` (no `<<GIT_AUTHOR>>` marker) | Leave as-is; skip auto-detection for this field. |
 
 ## Required tooling
 
