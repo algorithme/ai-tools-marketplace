@@ -1,0 +1,51 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/load-context.sh\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/load-adr-pointer.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "EnterPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/nudge-enter-plan.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "prompt",
+            "prompt": "You are gating whether Claude has enough to start planning, before it enters Plan Mode. Read $TRANSCRIPT_PATH and look at the user's request that led to this EnterPlanMode call. Judge two things only: (1) Context — is it reasonably clear what part of the system/product this touches and why, either from the request itself or from context already loaded this session (CLAUDE.md, .contexts/, docs/adr, earlier conversation)? (2) Scope — is there at least a rough boundary of what 'done' looks like for this task, rather than a fully open-ended aspiration like 'make it better' or 'improve performance' with no target named? Do NOT require a stated design or implementation approach from the user — that is what the plan itself should propose and hand back as a decision, not something the user must supply upfront. Return 'approve' if Context and Scope are both reasonably clear. Return 'deny' with a reason naming exactly which of the two is missing or too vague, instructing Claude to ask the user about it via AskUserQuestion before entering Plan Mode, instead of guessing at the goal.",
+            "timeout": 60
+          }
+        ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "You are gating a plan before it reaches the user for approval. Read $TRANSCRIPT_PATH to find the plan Claude is about to submit — it may be inline in Claude's recent messages, or written to a plan file that a nearby system message names; use whichever you find. It must contain all ten of these sections, each with real content ('None — <reason>' counts as real; an empty or templated placeholder does not): Non-negotiables, Decisions, Models, Functions, Diagram, File tree, Tests, Size check, ADR check, Documentation check. First check only which of the ten are present at all. If any are missing outright, return 'deny' immediately and name exactly which ones are missing — do not spend effort judging quality yet. Only if all ten are present, then judge substance: does Size check give an actual estimate and flag a likely split past ~2000 changed lines; does Tests name specific tests tied to real risk rather than generic coverage; does File tree list real files each with a reason; does Diagram actually depict the new logic instead of being a vague box. Return 'approve' if all ten are present and substantive, or 'deny' with a reason listing exactly what's missing or too thin so it can be fixed before the user sees it.",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

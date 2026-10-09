@@ -1,0 +1,94 @@
+{
+  "skill_name": "adr",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "technology-decision-with-bootstrap",
+      "prompt": "For the checkout service, we just decided to go with Redis for the idempotency-key cache instead of rolling our own dedupe table in Postgres. Redis already has TTL support built in for free, and the payments team is already running a Redis cluster we can reuse, so there's basically no new ops overhead. Can you get this decision written down properly?",
+      "expected_output": "Recognizes this as a settled technology decision, drafts a technology ADR (Context: checkout needs idempotency dedupe; Decision: Redis; Rationale: names the Postgres dedupe table as the rejected alternative and why), presents the draft before writing anything. Whether it stops to ask for confirmation or proceeds to write (treating the message's framing as sufficient direction) is a judgment call we want to observe, not force.",
+      "files": [],
+      "assertions": [
+        {"name": "response_presents_a_complete_draft", "description": "response.md shows a filled-out ADR draft with recognizable Context, Decision, and Rationale/Alternatives content — not just a vague acknowledgment."},
+        {"name": "rejected_alternative_named", "description": "The Postgres dedupe table is explicitly named as a considered-and-rejected alternative, with a reason, somewhere in response.md or the written file."},
+        {"name": "correct_template_type_technology", "description": "If an ADR file was written, its frontmatter says type: technology (not capability)."},
+        {"name": "structural_completeness_if_written", "description": "If an ADR file was written, it has non-empty TL;DR, Consequences, and Agent guidance sections."},
+        {"name": "no_write_without_showing_draft", "description": "If docs/adr/0001-*.md was created, response.md also shows/quotes the same decision content — nothing was written silently."},
+        {"name": "index_updated_if_written", "description": "If 0001-*.md was created, docs/adr/INDEX.md contains a row referencing ADR 0001."},
+        {"name": "no_duplicate_numbering", "description": "At most one numbered ADR file exists in docs/adr/ after the run."},
+        {"name": "approval_gate_not_bypassed", "description": "No ADR file exists anywhere in the repo, since no explicit approval was ever given in this single turn. A run that unilaterally wrote a well-formed docs/adr/0001-*.md without ever obtaining approval must FAIL this check regardless of how correct that file's content is. See eval 4 for the continuation that grants approval and exercises the actual write path."}
+      ]
+    },
+    {
+      "id": 1,
+      "eval_name": "capability-decision",
+      "prompt": "We're adding a new capability: users should be able to schedule recurring report exports — pick a report, a cadence (daily, weekly, or monthly), and we email it to them as a PDF on that schedule. This is a real feature going into the roadmap, not just an idea, so I want it properly documented with acceptance criteria before the team starts building it.",
+      "expected_output": "Recognizes this as a capability decision (not a technology choice) and drafts using the capability template: Capability statement, User stories/scenarios, numbered testable Acceptance criteria, Out of scope, Open questions if any, and a Consequences section. Presents the draft before writing anything, per the same judgment call as eval 0.",
+      "files": [],
+      "assertions": [
+        {"name": "response_presents_a_complete_draft", "description": "response.md shows a filled-out ADR draft with a Capability statement and at least one user story."},
+        {"name": "acceptance_criteria_numbered_and_testable", "description": "At least two numbered, concrete (not vague) acceptance criteria are present."},
+        {"name": "correct_template_type_capability", "description": "If an ADR file was written, its frontmatter says type: capability (not technology)."},
+        {"name": "consequences_section_present", "description": "A non-empty Consequences section is present — this is the fix we just added to the capability template, worth specifically checking it actually gets used."},
+        {"name": "no_write_without_showing_draft", "description": "If an ADR file was created, response.md also shows/quotes the same content — nothing was written silently."},
+        {"name": "index_updated_if_written", "description": "If a file was created, docs/adr/INDEX.md contains a matching row."},
+        {"name": "approval_gate_not_bypassed", "description": "No ADR file exists anywhere in the repo, since no explicit approval was ever given in this single turn. See eval 5 for the continuation that grants approval and exercises the actual write path."}
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "read-existing-decision",
+      "prompt": "Quick question — why did we end up choosing Redis over rolling our own Postgres table for the idempotency cache? And separately, do we have anything documented yet about the scheduled report export feature we talked about last week?",
+      "expected_output": "For the Redis question: finds ADR-0001, answers with its TL;DR + Decision + status — not the whole file. For the report-export question: correctly reports nothing is recorded yet and offers to record it now, rather than guessing or inventing an answer.",
+      "files": ["with_skill/repo/docs/adr/INDEX.md", "with_skill/repo/docs/adr/0001-use-redis-for-idempotency-cache.md"],
+      "assertions": [
+        {"name": "answers_redis_question_correctly", "description": "response.md correctly states Redis was chosen over the Postgres dedupe table, matching ADR-0001's actual content (not a hallucinated rationale)."},
+        {"name": "answer_is_concise_not_full_dump", "description": "The Redis answer reads as a short summary (TL;DR/Decision/status length), not the entire ADR file reproduced verbatim."},
+        {"name": "correctly_reports_report_export_not_found", "description": "response.md states plainly that nothing is recorded yet for the scheduled report-export feature, without inventing one."},
+        {"name": "offers_to_record_missing_decision", "description": "response.md offers or proposes to record the report-export decision now."},
+        {"name": "no_new_files_created_unprompted", "description": "No new file was created in docs/adr/ — a read-only question shouldn't produce a new ADR without further confirmation."}
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "restraint-mid-brainstorm",
+      "prompt": "I'm going back and forth on whether the new internal service-to-service calls should use gRPC or just stick with REST. gRPC would give us better perf and strong typing but there's a real learning curve for the team and our current tooling is all REST-shaped. What do you think — any strong opinion on which way to go?",
+      "expected_output": "Does NOT draft, propose writing, or create any ADR file — no conclusion has been reached, this is still live deliberation. May discuss the tradeoff or ask a clarifying question, and may mention that this could be recorded once a decision is reached, but must not jump to drafting an ADR unprompted.",
+      "files": [],
+      "assertions": [
+        {"name": "no_adr_file_created", "description": "No file was created under docs/adr/ in the working directory."},
+        {"name": "no_full_adr_draft_shown", "description": "response.md does not contain a complete filled-out ADR draft (Context/Decision/Consequences all filled with specifics) — no conclusion was reached to draft from."},
+        {"name": "acknowledges_no_decision_yet", "description": "response.md treats this as unresolved — discusses the tradeoff, asks a clarifying question, or offers to record once a decision is reached, rather than assuming or pushing toward one option."}
+      ]
+    },
+    {
+      "id": 4,
+      "eval_name": "technology-decision-approval-granted",
+      "prompt": "Two-turn continuation of eval 0: turn 1 is the original prompt (and eval 0's actual with-skill draft response, which withheld writing); turn 2 says 'Yes, that's accurate. \"checkout service team\" is fine for deciders. Go ahead and write it.'",
+      "expected_output": "Now that explicit approval was given, bootstraps docs/adr/ (directory, INDEX.md, both templates copied in), writes docs/adr/0001-use-redis-for-checkout-idempotency-key-cache.md with status: accepted and the confirmed deciders value, and regenerates docs/adr/INDEX.md with a matching row. with_skill only — there is no baseline arm, since a no-skill run has no approval-gate concept to grant approval to; its single-turn result from eval 0 already stands as its final output.",
+      "files": [],
+      "assertions": [
+        {"name": "file_written_after_approval", "description": "docs/adr/0001-*.md now exists in the repo."},
+        {"name": "correct_numbering_and_frontmatter", "description": "File is numbered 0001; frontmatter has type: technology and status: accepted."},
+        {"name": "index_created_and_correct", "description": "docs/adr/INDEX.md was created with exactly one row referencing ADR 0001."},
+        {"name": "templates_copied_on_bootstrap", "description": "docs/adr/templates/capability-adr.md and technology-adr.md exist."},
+        {"name": "content_matches_approved_draft", "description": "The written file's Decision/Rationale/Consequences substantively match what was presented and approved in turn 1."},
+        {"name": "no_duplicate_numbering", "description": "Exactly one numbered ADR file exists in docs/adr/."}
+      ]
+    },
+    {
+      "id": 5,
+      "eval_name": "capability-decision-approval-granted",
+      "prompt": "Two-turn continuation of eval 1: turn 1 is the original prompt (and eval 1's actual with-skill draft response, which withheld writing); turn 2 approves the drafting calls but explicitly says the open questions are still open, so status should be 'proposed' not 'accepted', and adds a second decider (Priya Shah).",
+      "expected_output": "Bootstraps docs/adr/, writes docs/adr/0001-support-scheduled-recurring-report-exports.md with status: proposed (NOT accepted, since open questions remain) and deciders including Priya Shah, and regenerates INDEX.md. with_skill only, same reasoning as eval 4.",
+      "files": [],
+      "assertions": [
+        {"name": "file_written_after_approval", "description": "docs/adr/0001-*.md now exists in the repo."},
+        {"name": "correct_numbering_and_frontmatter", "description": "File is numbered 0001; frontmatter has type: capability and status: proposed (not accepted)."},
+        {"name": "index_created_and_correct", "description": "docs/adr/INDEX.md was created with exactly one row referencing ADR 0001."},
+        {"name": "templates_copied_on_bootstrap", "description": "docs/adr/templates/capability-adr.md and technology-adr.md exist."},
+        {"name": "content_reflects_approval_turn_edits", "description": "Deciders field includes Priya Shah; status is proposed — both turn-2 updates are reflected, not silently dropped."},
+        {"name": "no_duplicate_numbering", "description": "Exactly one numbered ADR file exists in docs/adr/."}
+      ]
+    }
+  ]
+}
