@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0] - 2026-10-09
+
+- Add a Codex manifest and command-only hooks alongside the existing Claude hooks.
+- Share context, ADR, plan, and implementation skills across both runtimes,
+  preserving user approval and existing stored formats.
+- Add a Codex planning reminder and agent-run ten-section preflight, with
+  a Stop-hook correction when final text is available. Document native Plan
+  Mode's missing-text limitation, preflight responsibility, and hook review.
+- Load startup context from the project root even from nested directories;
+  tolerate unreadable indexes and count linked ADR identifiers.
+- Validate both manifest formats and add executable hook regression tests.
+
 ## [1.3.0] - 2026-10-09
 
 - Import the supplied Grumpy 1.3.0 archive, including its four skills, four

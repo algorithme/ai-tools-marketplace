@@ -8,11 +8,11 @@
 
 set -uo pipefail
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
 INDEX_FILE="$PROJECT_DIR/docs/adr/INDEX.md"
 
-if [[ -f "$INDEX_FILE" ]]; then
-  COUNT=$(grep -cE '^\| *[0-9]{4} *\|' "$INDEX_FILE" 2>/dev/null) || COUNT=0
+if [[ -f "$INDEX_FILE" && -r "$INDEX_FILE" ]]; then
+  COUNT=$(grep -cE '^\| *([0-9]{4}|\[(ADR-)?[0-9]{4}\]\([^)]*\)) *\|' "$INDEX_FILE" 2>/dev/null) || COUNT=0
   echo "## Architecture Decision Records"
   echo "$COUNT ADR(s) recorded in docs/adr/INDEX.md — check it before making or reversing an architectural decision."
 fi

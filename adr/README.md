@@ -10,6 +10,7 @@ This directory contains Architecture Decision Records (ADRs) for the `ai-tools-m
 | [0002](./0002-versioning-and-releases.md) | Versioning strategy — semver in `plugin.json` | Accepted |
 | [0003](./0003-validation-and-ci.md) | Validation authority — `scripts/validate.sh` + best-effort CI | Accepted |
 | [0004](./0004-documentation-structure.md) | Documentation structure — modular files over monolithic guides | Accepted |
+| [0005](./0005-dual-runtime-grumpy.md) | Shared Grumpy package with separate runtime hooks | Accepted |
 
 ## When to write an ADR
 

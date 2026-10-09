@@ -1,10 +1,13 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working in this repository.
+This file provides repository guidance to coding agents.
 
 ## Project purpose
 
 A personal Claude Code plugin marketplace (`olivier-vault`) that catalogs Skills, Agents, Hooks, MCP servers, LSP servers, output-styles, monitors, executables, user-config, and channels — every component type from the Claude Code plugin spec.
+
+Grumpy also supports Codex through shared skills and separate runtime hooks.
+See [the Codex guide](./docs/plugins/grumpy-senior-engineer-workflow/codex.md).
 
 ## Repository layout
 
@@ -22,6 +25,7 @@ ai-tools-marketplace/
 ├── plugins/                         ← all plugins (relative-path sources)
 │   └── <plugin-name>/
 │       ├── .claude-plugin/plugin.json
+│       ├── .codex-plugin/plugin.json ← optional Codex compatibility manifest
 │       ├── skills/ / commands/ / agents/ / hooks/ / …
 │       └── README.md
 ├── schemas/                         ← JSON Schema for marketplace and plugin manifests
@@ -37,7 +41,9 @@ Always run before opening a PR:
 ./scripts/validate.sh
 ```
 
-The script runs: `jq` → `ajv` (JSON Schema) → `yq` (YAML frontmatter) → `shellcheck` → kebab-case lint → `claude plugin validate` (best-effort).
+The script validates JSON and runtime-specific schemas, manifest paths and
+identity/version agreement, YAML frontmatter, shell scripts, names, and Grumpy
+hook tests. `claude plugin validate` remains best-effort.
 
 See [adr/0003](./adr/0003-validation-and-ci.md) for rationale.
 
@@ -55,6 +61,7 @@ See [docs/publishing.md](./docs/publishing.md) for the full workflow.
 
 - **Plugin names**: kebab-case only (`my-plugin`, not `MyPlugin` or `my_plugin`).
 - **Version**: lives in `plugin.json`, never in `marketplace.json` plugin entries (spec: manifest wins silently if both are set).
+- **Dual-runtime plugins**: keep both manifests' names and versions identical; share skills and separate incompatible hooks.
 - **Files per PR**: soft cap of 1 000 lines of diff.
 - **ADRs**: write one for every significant architectural decision. Template in `adr/README.md`.
 - **Docs**: prefer many small files (`<150 lines`) over a single large file (see [adr/0004](./adr/0004-documentation-structure.md)).
@@ -69,6 +76,7 @@ See `adr/` for the full list. Quick summary:
 | 0002 | Semver in `plugin.json`; version not set in marketplace entries |
 | 0003 | `scripts/validate.sh` is the validation authority; `claude plugin validate` is best-effort |
 | 0004 | Modular docs — one file per topic |
+| 0005 | Shared Grumpy package with separate Claude/Codex hooks and Codex preflight |
 
 ## Local testing
 
@@ -85,7 +93,7 @@ claude plugin marketplace update olivier-vault
 
 ## Build / lint / test commands
 
-There is no build step. The only "test" command is:
+There is no build step. Validation, including Grumpy's hook tests, runs through:
 
 ```bash
 ./scripts/validate.sh

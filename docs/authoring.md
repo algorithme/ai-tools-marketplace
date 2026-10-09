@@ -2,6 +2,9 @@
 
 A **plugin** is a directory that groups one or more Claude Code components. This page explains the manifest format and the full list of supported component types. Each component type has a dedicated deep-dive linked in the matrix below.
 
+Grumpy also supports Codex through a separate manifest and hook configuration;
+see its [package maintenance notes](./plugins/grumpy-senior-engineer-workflow/codex.md#package-maintenance).
+
 ## Plugin manifest — `plugin.json`
 
 Every plugin **should** have a `.claude-plugin/plugin.json`. The manifest is technically optional (Claude Code auto-discovers components), but it is required to set a version and metadata.

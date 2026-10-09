@@ -2,6 +2,8 @@
 
 **olivier-vault** is a personal Claude Code plugin marketplace. This guide shows you how to add it to your Claude Code installation and install plugins from it.
 
+For Grumpy in Codex, use the [Codex setup guide](./plugins/grumpy-senior-engineer-workflow/codex.md).
+
 ## Prerequisites
 
 - Claude Code installed and running.

@@ -18,13 +18,13 @@ Plan argument: $ARGUMENTS
 Resolve it as follows:
 
 - **A path was given** — read that file as the plan to implement.
-- **No argument was given** — if a plan was drafted and approved via
-  `ExitPlanMode` earlier in this conversation, use that plan directly.
+- **No argument was given** — if the user approved a plan earlier in
+  this conversation (including via `ExitPlanMode`), use that plan directly.
   Otherwise, ask the user which plan to implement rather than guessing.
 
 Then carry out the build exactly as the `implement` skill specifies,
-including confirming the plan still has all ten sections before
-starting, saving an unsaved plan to `docs/plans/` unless the `plan`
-skill's narrow same-turn exception applies, enforcing non-negotiables
+including checking the ten sections for substantive gaps without
+invalidating existing approval, saving an unsaved plan to `docs/plans/`
+unless the `plan` skill's narrow same-turn exception applies, enforcing non-negotiables
 rather than just noting them, and pausing to ask before any real
 deviation from the plan's Decisions, Models, Functions, or File tree.

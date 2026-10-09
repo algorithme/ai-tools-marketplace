@@ -11,12 +11,13 @@ project_root/.contexts/
 ```
 
 Each context body is capped at **500 characters** and is checked against
-the root `CLAUDE.md` plus nested `CLAUDE.md` files within the target's
-directory tree. Sibling subprojects are excluded for a subproject context.
+applicable `CLAUDE.md` and `AGENTS.md` instructions: root files, inherited
+ancestors, and files within the target's directory tree, honoring runtime
+precedence. Sibling subprojects are excluded for a subproject context.
 It stores only the delta an agent couldn't get from those files.
 
-Four operations, available as a slash command or triggered from natural
-language:
+Four operations, available through Claude's slash command or the shared skill
+in either runtime:
 
 | Operation | Effect |
 |---|---|
@@ -26,9 +27,12 @@ language:
 | `add-sub` | Register a new subproject context |
 
 A `SessionStart` hook loads `.contexts/index.md` automatically at the start
-of every session, so agents start already oriented instead of asking.
+of every session when hooks are enabled and reviewed where required.
+It resolves the root from `CLAUDE_PROJECT_DIR`, then Git, then the working directory.
 
 ## Usage
+
+Claude command examples (Codex uses skill selection or natural language):
 
 ```
 /grumpy-senior-engineer-workflow:grumpy-context set root this is a monorepo: FastAPI api-service + React frontend, shared Postgres, deploys via infra/ Terraform
@@ -44,11 +48,11 @@ without typing the slash command.
 ## How It Works
 
 - **[`skills/context/SKILL.md`](../../../plugins/grumpy-senior-engineer-workflow/skills/context/SKILL.md)** is the single source of truth: file layout,
-  the 500-character limit, the `CLAUDE.md` dedup rule, and the exact
+  the 500-character limit, instruction-file deduplication, and the exact
   behavior of each operation. It auto-triggers on context-management intent.
 - **[`commands/grumpy-context.md`](../../../plugins/grumpy-senior-engineer-workflow/commands/grumpy-context.md)** is a thin dispatcher for the explicit
   `/grumpy-senior-engineer-workflow:grumpy-context` command — it parses
   arguments and defers to the skill's rules rather than duplicating them.
 - **[`hooks/load-context.sh`](../../../plugins/grumpy-senior-engineer-workflow/hooks/load-context.sh)** runs on `SessionStart` and prints
-  `.contexts/index.md` (if present) into the session's context. Missing or
-  absent `.contexts/` never blocks a session.
+  `.contexts/index.md` (if readable) into the session's context. Missing or
+  unreadable context never blocks a session.

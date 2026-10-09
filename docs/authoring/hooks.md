@@ -2,6 +2,9 @@
 
 Hooks let your plugin respond to Claude Code lifecycle events — before a tool runs, after a file is written, when a session starts, and more.
 
+This page describes Claude hooks. Codex support differs; see
+[Grumpy's runtime comparison](../plugins/grumpy-senior-engineer-workflow/codex.md#what-each-runtime-checks).
+
 Upstream reference: [code.claude.com/docs/en/hooks](https://code.claude.com/docs/en/hooks)
 
 ## File location

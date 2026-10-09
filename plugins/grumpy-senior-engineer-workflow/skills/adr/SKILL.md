@@ -116,6 +116,12 @@ odds; a direct behavioral instruction shifts them further.
 
 ## Capturing a new ADR
 
+Use the runtime's question tool when available, otherwise ask in conversation.
+Approval means the user's confirmation of the complete draft, regardless of
+runtime; a successful hook or an approved implementation plan alone does not
+approve an unseen ADR draft. Reuse confirmation already given for that draft
+and its bootstrap rather than requesting it again.
+
 1. **Recognize a real decision moment** — see the description's trigger
    list. If the conversation is still exploring options with no
    conclusion, don't draft anything yet; wait for a conclusion, or ask
@@ -189,8 +195,9 @@ value.
 
 ## Operations
 
-Invoked via `/grumpy-senior-engineer-workflow:grumpy-adr <operation> [target]
-[details]`, or triggered from natural language per the description above.
+In Claude, invoke `/grumpy-senior-engineer-workflow:grumpy-adr <operation>
+[target] [details]`. In Codex, select the plugin's `adr` skill or request an
+operation naturally, for example "use Grumpy ADR to audit our decisions".
 
 | Operation | Aliases | Effect |
 |---|---|---|
@@ -224,8 +231,8 @@ count in `INDEX.md` lie the moment anyone looks at it before the first
 real decision lands.
 
 Then check whether this documentation actually gets found later. A
-`SKILL.md` only loads when something triggers it; `CLAUDE.md`/`AGENTS.md`
-loads into every session automatically. Without a pointer there, an agent
+`SKILL.md` only loads when something triggers it; the runtime loads applicable
+`CLAUDE.md` or `AGENTS.md` instructions. Without a pointer there, an agent
 that isn't already thinking about ADRs has no reason to go looking for
 `docs/adr/` at all.
 

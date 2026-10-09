@@ -1,11 +1,13 @@
 # olivier-vault
 
-> A personal Claude Code plugin marketplace — Skills, Agents, Hooks, MCP servers, and more.
+> A personal plugin marketplace for Claude Code, with Codex support in Grumpy.
 
 [![Validate](https://github.com/omorel/ai-tools-marketplace/actions/workflows/validate.yml/badge.svg)](https://github.com/omorel/ai-tools-marketplace/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 ## Install
+
+Claude Code:
 
 ```
 /plugin marketplace add omorel/ai-tools-marketplace
@@ -24,12 +26,14 @@ claude plugin marketplace add omorel/ai-tools-marketplace
 claude plugin install <plugin-name>@olivier-vault
 ```
 
+For Grumpy in Codex, follow [Codex setup and compatibility](./docs/plugins/grumpy-senior-engineer-workflow/codex.md), including hook review.
+
 ## Plugins
 
 | Plugin | Description | Components |
 |---|---|---|
 | [update-manager](./plugins/update-manager/README.md) | Tiered dependency updates across ecosystems, with Renovate configuration generation. | 2 skills, hooks |
-| [grumpy-senior-engineer-workflow](./plugins/grumpy-senior-engineer-workflow/README.md) | Project context, architecture decisions, structured planning, and implementation of approved plans. | 4 commands, 4 skills, hooks |
+| [grumpy-senior-engineer-workflow](./plugins/grumpy-senior-engineer-workflow/README.md) | Project context, architecture decisions, planning, and approved implementation in Claude Code and Codex. | 4 shared skills, runtime hooks, 4 Claude commands |
 
 ## Supported component types
 

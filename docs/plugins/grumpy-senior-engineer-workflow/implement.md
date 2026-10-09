@@ -11,7 +11,7 @@ designed with:
 - The file tree, models, functions, and diagram get built as approved.
   Small, obviously implied additions (an `__init__.py`, an import fix)
   proceed on their own; anything that reopens a Decision or changes
-  scope stops and asks via `AskUserQuestion` instead of getting resolved
+  scope stops and asks using the runtime's available question mechanism instead of getting resolved
   silently.
 - Write the tests the plan named when they buy real confidence. If a
   real risk emerges that the plan missed, name it and add a test for it —
@@ -27,6 +27,8 @@ designed with:
 
 ## Usage
 
+Claude command example (Codex uses skill selection or natural language):
+
 ```text
 /grumpy-senior-engineer-workflow:grumpy-implement docs/plans/idempotent-kafka-publishing-billing.md
 ```
@@ -34,6 +36,7 @@ designed with:
 It also triggers from plain language once a plan has sign-off — "go
 ahead and build that" or "implement this" right after approving a plan
 works without the slash command or a file path.
+Approval comes from the user, independently of plan formatting or hook results.
 
 ## How It Works
 
@@ -42,10 +45,8 @@ works without the slash command or a file path.
   path, or the one just approved this session), how each of the ten
   plan sections becomes an actual build-time obligation, and the line
   between a deviation that can proceed and one that has to stop and ask.
-  Unlike the other three tools, it has no dedicated hook — it relies on
-  its description and the `/grumpy-implement` command to trigger, since
-  there's no single tool call (like `EnterPlanMode`/`ExitPlanMode`) to
-  gate the start or end of a build against.
+  It has no dedicated implementation hook: select the skill, use natural
+  language, or invoke the Claude `/grumpy-implement` command.
 - **[`commands/grumpy-implement.md`](../../../plugins/grumpy-senior-engineer-workflow/commands/grumpy-implement.md)** is a thin dispatcher for the
   explicit `/grumpy-senior-engineer-workflow:grumpy-implement` command —
   it resolves the plan-file argument (or falls back to the session's
