@@ -12,7 +12,7 @@ PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 INDEX_FILE="$PROJECT_DIR/docs/adr/INDEX.md"
 
 if [[ -f "$INDEX_FILE" ]]; then
-  COUNT=$(grep -cE '^\| *[0-9]{4} *\|' "$INDEX_FILE" 2>/dev/null || echo 0)
+  COUNT=$(grep -cE '^\| *[0-9]{4} *\|' "$INDEX_FILE" 2>/dev/null) || COUNT=0
   echo "## Architecture Decision Records"
   echo "$COUNT ADR(s) recorded in docs/adr/INDEX.md — check it before making or reversing an architectural decision."
 fi

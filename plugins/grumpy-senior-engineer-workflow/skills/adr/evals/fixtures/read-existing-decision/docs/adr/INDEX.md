@@ -7,3 +7,4 @@ without modifying files.
 
 | ADR | Title | Type | Status | Date | Supersedes | Superseded by |
 |---|---|---|---|---|---|---|
+| 0001 | [Use Redis for idempotency cache](0001-use-redis-for-idempotency-cache.md) | technology | accepted | 2026-10-01 | — | — |
