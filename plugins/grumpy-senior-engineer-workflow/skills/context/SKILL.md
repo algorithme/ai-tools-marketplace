@@ -4,8 +4,9 @@ description: >-
   Manages a minimal, machine-readable project context stored under
   .contexts/ (index.md for the root project plus one file per monorepo
   subproject, each capped at 500 characters and deduplicated against
-  every CLAUDE.md in the repo). Use this PROACTIVELY whenever the user
-  wants to view, record, refresh, or reset what an AI agent should know
+  the root CLAUDE.md plus nested CLAUDE.md files under the target's own
+  directory tree, excluding siblings). Use this PROACTIVELY whenever
+  the user wants to view, record, refresh, or reset what an AI agent should know
   about a project or a subproject — even if they don't say "context"
   explicitly. Triggers include: "what's the context for the api
   service?", "update the project context, we moved to Postgres",

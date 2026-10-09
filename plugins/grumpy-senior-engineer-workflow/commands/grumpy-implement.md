@@ -24,7 +24,7 @@ Resolve it as follows:
 
 Then carry out the build exactly as the `implement` skill specifies,
 including confirming the plan still has all ten sections before
-starting, saving it to `docs/plans/` first if it was never saved,
-enforcing non-negotiables rather than just noting them, and pausing to
-ask before any real deviation from the plan's Decisions, Models,
-Functions, or File tree.
+starting, saving an unsaved plan to `docs/plans/` unless the `plan`
+skill's narrow same-turn exception applies, enforcing non-negotiables
+rather than just noting them, and pausing to ask before any real
+deviation from the plan's Decisions, Models, Functions, or File tree.
