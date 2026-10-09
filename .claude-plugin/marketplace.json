@@ -18,6 +18,28 @@
       },
       "license": "MIT",
       "keywords": ["deps", "maintenance", "automation", "rust", "python", "node"]
+    },
+    {
+      "name": "grumpy-senior-engineer-workflow",
+      "source": "./plugins/grumpy-senior-engineer-workflow",
+      "description": "A workflow toolkit for driving AI coding agents safely. Ships /grumpy-context: a minimal, deduplicated, per-subproject context store (<=500 chars per entry) kept in .contexts/, auto-loaded at session start. Also ships /grumpy-adr: architecture decision records in docs/adr/, with a draft-approve-number-audit lifecycle so agents stop re-litigating settled decisions. Also ships /grumpy-plan: a required ten-section checklist for any Plan-mode deliverable, gated by a hook on ExitPlanMode so a plan missing sections gets bounced back before you see it. Also ships /grumpy-implement: builds an approved plan (from docs/plans/) under the same guardrails it was designed with, pausing on real forks instead of resolving them silently.",
+      "author": {
+        "name": "Olivier Morel",
+        "email": "olivier@devbox.ch"
+      },
+      "keywords": [
+        "context",
+        "workflow",
+        "monorepo",
+        "ai-agents",
+        "grumpy-senior-engineer",
+        "adr",
+        "architecture-decision-records",
+        "decisions",
+        "planning",
+        "plan-mode",
+        "implementation"
+      ]
     }
   ]
 }

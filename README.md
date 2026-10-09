@@ -28,9 +28,8 @@ claude plugin install <plugin-name>@olivier-vault
 
 | Plugin | Description | Components |
 |---|---|---|
-| *(coming soon)* | — | — |
-
-*Plugins are added in follow-up PRs. Watch the repo or check back soon.*
+| [update-manager](./plugins/update-manager/README.md) | Tiered dependency updates across ecosystems, with Renovate configuration generation. | 2 skills, hooks |
+| [grumpy-senior-engineer-workflow](./plugins/grumpy-senior-engineer-workflow/README.md) | Project context, architecture decisions, structured planning, and implementation of approved plans. | 4 commands, 4 skills, hooks |
 
 ## Supported component types
 
