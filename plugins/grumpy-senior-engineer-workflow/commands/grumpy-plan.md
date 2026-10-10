@@ -15,6 +15,7 @@ Task: $ARGUMENTS
 
 Enter Plan Mode for this task (via `EnterPlanMode`) if it isn't already
 active, draft the plan following all ten sections from the `plan`
-skill in order, and only then call `ExitPlanMode`. An `ExitPlanMode`
-hook checks the same ten sections before the user sees the plan — treat
-that as a backstop, not the target; get it right on the first draft.
+skill in order, and only then call `ExitPlanMode`. Claude's prompt hook
+on `ExitPlanMode` checks the same ten sections. Present the full plan
+and await user approval; a successful hook is neither a quality guarantee
+nor approval. Save it according to the skill's same-turn exception.

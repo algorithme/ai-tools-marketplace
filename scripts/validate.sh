@@ -7,6 +7,7 @@
 #          4. Shell script safety      — requires: shellcheck
 #          5. Kebab-case plugin names
 #          6. Claude plugin validate   — best-effort (requires claude CLI)
+#          7. Codex paths and Grumpy hook tests (Python 3 standard library)
 #
 # Exit codes: 0 = all blocking checks passed, 1 = at least one check failed.
 # See adr/0003-validation-and-ci.md for rationale.
@@ -24,6 +25,7 @@ info()   { printf '  %s\n' "$*"; }
 fail() { red "FAIL: $*"; ERRORS=$((ERRORS + 1)); }
 pass() { green "PASS: $*"; }
 warn() { yellow "WARN: $*"; }
+relative_path() { printf '%s' "${1#"$ROOT/"}"; }
 
 echo ""
 echo "=== Validate olivier-vault marketplace ==="
@@ -43,7 +45,7 @@ fi
 # plugin.json files — process substitution keeps ERRORS in the current shell
 while IFS= read -r f; do
   if jq empty "$f" 2>/dev/null; then
-    pass "$(basename "$(dirname "$(dirname "$f")")")/plugin.json — valid JSON"
+    pass "$(relative_path "$f") — valid JSON"
   else
     fail "$f — JSON syntax error"
   fi
@@ -68,17 +70,17 @@ if command -v ajv > /dev/null 2>&1; then
 
   # Process substitution keeps ERRORS in the current shell (not a subshell)
   while IFS= read -r f; do
-    PLUGIN_DIR="$(dirname "$(dirname "$f")")"
-    NAME="$(basename "$PLUGIN_DIR")"
+    SCHEMA="$ROOT/schemas/plugin.schema.json"
+    [[ "$f" == */.codex-plugin/plugin.json ]] && SCHEMA="$ROOT/schemas/codex-plugin.schema.json"
     if ajv validate \
         --spec=draft7 \
         -c ajv-formats \
-        -s "$ROOT/schemas/plugin.schema.json" \
+        -s "$SCHEMA" \
         -d "$f" \
         --errors=text 2>&1; then
-      pass "$NAME/plugin.json matches schema"
+      pass "$(relative_path "$f") matches schema"
     else
-      fail "$NAME/plugin.json schema validation failed"
+      fail "$(relative_path "$f") schema validation failed"
     fi
   done < <(find "$ROOT/plugins" -name "plugin.json" 2>/dev/null)
 else
@@ -96,9 +98,9 @@ if command -v yq > /dev/null 2>&1; then
     FRONT=$(awk '/^---/{f++; if(f==2) exit; next} f==1' "$md")
     if [ -n "$FRONT" ]; then
       if echo "$FRONT" | yq '.' > /dev/null 2>&1; then
-        pass "$(realpath --relative-to="$ROOT" "$md") — frontmatter OK"
+        pass "$(relative_path "$md") — frontmatter OK"
       else
-        fail "$(realpath --relative-to="$ROOT" "$md") — invalid YAML frontmatter"
+        fail "$(relative_path "$md") — invalid YAML frontmatter"
       fi
     fi
   done < <(find "$ROOT/plugins" \( -name "SKILL.md" -o -name "*.md" -path "*/agents/*" -o -name "*.md" -path "*/commands/*" \) -print0 2>/dev/null)
@@ -120,9 +122,9 @@ if command -v shellcheck > /dev/null 2>&1; then
       # Only check files with a shell shebang or .sh extension
       if head -1 "$sh" | grep -qE "^#!.*(bash|sh|zsh)" || [[ "$sh" == *.sh ]]; then
         if shellcheck "$sh"; then
-          pass "$(realpath --relative-to="$ROOT" "$sh")"
+          pass "$(relative_path "$sh")"
         else
-          fail "$(realpath --relative-to="$ROOT" "$sh") — shellcheck errors"
+          fail "$(relative_path "$sh") — shellcheck errors"
         fi
       fi
     done <<< "$SHELL_FILES"
@@ -166,6 +168,83 @@ if command -v claude > /dev/null 2>&1; then
   fi
 else
   warn "claude CLI not found — skipping (install @anthropic-ai/claude-code to run)"
+fi
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 7. Codex package contracts and executable hook tests
+# ──────────────────────────────────────────────────────────────────────────────
+echo ""
+echo "── 7. Codex packaging and Grumpy hooks ──"
+if command -v python3 > /dev/null 2>&1; then
+  if python3 - "$ROOT" <<'PY'
+import json
+import shlex
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+events = {"SessionStart", "SessionEnd", "UserPromptSubmit", "Stop", "Interrupt",
+          "PreToolUse", "PostToolUse", "PermissionRequest", "PreCompact",
+          "PostCompact", "SubagentStart", "SubagentStop"}
+
+
+def local_path(plugin, value):
+    if not isinstance(value, str) or not value.startswith("./"):
+        raise ValueError(f"expected a ./-prefixed package path: {value!r}")
+    target = (plugin / value).resolve()
+    if plugin not in target.parents or not target.exists():
+        raise ValueError(f"missing path or path outside plugin: {value}")
+    return target
+
+
+errors = []
+for manifest in sorted((root / "plugins").glob("*/.codex-plugin/plugin.json")):
+    try:
+        plugin = manifest.parent.parent.resolve()
+        data = json.loads(manifest.read_text())
+        claude = json.loads((plugin / ".claude-plugin/plugin.json").read_text())
+        if any(data.get(key) != claude.get(key) for key in ("name", "version")):
+            raise ValueError("Claude and Codex names/versions differ")
+        if not local_path(plugin, data["skills"]).is_dir():
+            raise ValueError("skills must reference a directory")
+        hooks = json.loads(local_path(plugin, data["hooks"]).read_text())["hooks"]
+        if not isinstance(hooks, dict) or not hooks:
+            raise ValueError("hooks must be a nonempty event map")
+        for event, groups in hooks.items():
+            if event not in events or not isinstance(groups, list) or not groups:
+                raise ValueError(f"unsupported event or invalid groups: {event}")
+            for group in groups:
+                handlers = group["hooks"]
+                if not isinstance(handlers, list) or not handlers:
+                    raise ValueError(f"empty or invalid handlers: {event}")
+                for handler in handlers:
+                    if handler["type"] != "command":
+                        raise ValueError(f"Codex package requires command hooks: {event}")
+                    tokens = shlex.split(handler["command"])
+                    if not tokens:
+                        raise ValueError(f"empty hook command: {event}")
+                    for token in tokens:
+                        for variable in ("${PLUGIN_ROOT}", "${CLAUDE_PLUGIN_ROOT}"):
+                            if token.startswith(variable + "/"):
+                                local_path(plugin, "." + token[len(variable):])
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        errors.append(f"{manifest.relative_to(root)}: {exc}")
+if errors:
+    print("\n".join(errors), file=sys.stderr)
+    sys.exit(1)
+PY
+  then
+    pass "Codex package identities, hook JSON and local paths"
+  else
+    fail "Codex package contracts"
+  fi
+  if python3 -B -m unittest discover -s "$ROOT/plugins/grumpy-senior-engineer-workflow/tests" -p 'test_*.py'; then
+    pass "Grumpy hook tests"
+  else
+    fail "Grumpy hook tests"
+  fi
+else
+  fail "python3 is required for Codex package and hook validation"
 fi
 
 # ──────────────────────────────────────────────────────────────────────────────

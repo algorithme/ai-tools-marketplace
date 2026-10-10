@@ -6,8 +6,8 @@ argument-hint: <get|set|reset|improve|add-sub> [target] [details...]
 Apply the rules in the `context` skill (`grumpy-senior-engineer-workflow:context`)
 to the arguments below. If that skill isn't loaded yet, load it first — it is
 the single source of truth for the `.contexts/` file layout, the 500-character
-body limit, the CLAUDE.md deduplication check, and the exact behavior of each
-operation. Do not reimplement those rules here; this command only parses
+body limit, the instruction-file deduplication check, and each operation's
+behavior. Do not reimplement those rules here; this command only parses
 arguments and hands off to them.
 
 Raw arguments: $ARGUMENTS
@@ -28,5 +28,5 @@ Parse them as `<operation> [target] [details...]`:
   `add-sub`. Not required for `get`.
 
 Then carry out the operation exactly as the `context` skill specifies,
-including reading the relevant `CLAUDE.md` files first and verifying the
-500-character limit before confirming the write.
+including reading applicable `CLAUDE.md` and `AGENTS.md` instructions first
+and verifying the 500-character limit before confirming the write.

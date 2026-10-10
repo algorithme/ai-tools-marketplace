@@ -4,8 +4,9 @@ description: >-
   Manages a minimal, machine-readable project context stored under
   .contexts/ (index.md for the root project plus one file per monorepo
   subproject, each capped at 500 characters and deduplicated against
-  the root CLAUDE.md plus nested CLAUDE.md files under the target's own
-  directory tree, excluding siblings). Use this PROACTIVELY whenever
+  applicable AGENTS.md and CLAUDE.md instructions at the root, inherited
+  by the target, and within its own directory tree, excluding siblings).
+  Use this PROACTIVELY whenever
   the user wants to view, record, refresh, or reset what an AI agent should know
   about a project or a subproject — even if they don't say "context"
   explicitly. Triggers include: "what's the context for the api
@@ -23,7 +24,7 @@ A grumpy senior engineer does not write a memoir for every service —
 they leave a terse note on the whiteboard: what it is, what's
 non-obvious, nothing you could read in the README. That's what
 `.contexts/` holds: a cheat-sheet for AI agents, not a second
-`CLAUDE.md`. If you're about to write a paragraph, you're doing it
+instruction file. If you're about to write a paragraph, you're doing it
 wrong — cut it down.
 
 ## Storage layout
@@ -81,19 +82,17 @@ exists to protect that one paragraph. Rules for it:
 1. **≤ 500 characters, no exceptions.** Verify by piping the draft
    through `wc -m` (or equivalent) — don't eyeball it. If it doesn't
    fit, cut adjectives and examples before cutting facts.
-2. **Deduplicated against every `CLAUDE.md` in scope.** Before writing
-   or merging, find and read them:
-   ```bash
-   find . -name CLAUDE.md -not -path '*/.git/*' -not -path '*/node_modules/*' \
-     -not -path '*/.venv/*' -not -path '*/dist/*' -not -path '*/build/*' \
-     -not -path '*/target/*' -not -path '*/vendor/*' -not -path '*/__pycache__/*'
-   ```
-   Read the root `CLAUDE.md` plus any nested one under the target's
-   own directory tree (use the subproject's `Path` from the manifest —
-   a subproject only needs its own nested file(s), not siblings').
+2. **Deduplicated against applicable instruction files.** Before writing
+   or merging, read root `AGENTS.md` and `CLAUDE.md`, inherited instructions
+   along the path to the target, and nested instruction files within its
+   own directory tree. Honor the runtime's precedence rules, including
+   `AGENTS.override.md` where applicable. Use the subproject's `Path` from
+   the manifest; exclude sibling subprojects and generated/vendor trees.
+   For root context, the target is the project root. Deduplication does
+   not make a subtree instruction apply outside that subtree.
    Anything already stated there — stack, structure,
    commands, conventions — does not belong in the context. Store only
-   the delta: things CLAUDE.md doesn't say and an agent would otherwise
+   the delta: things those instructions don't say and an agent would otherwise
    have to rediscover (e.g. "the retry logic in `billing/` is
    intentionally duplicated, don't unify it", "auth service is legacy,
    being replaced by `svc-auth-v2`, don't add features to it").
@@ -105,8 +104,9 @@ exists to protect that one paragraph. Rules for it:
 
 ## Operations
 
-Invoked via `/grumpy-senior-engineer-workflow:grumpy-context <operation>
-[target] [details]`, or triggered directly from natural language.
+In Claude, invoke `/grumpy-senior-engineer-workflow:grumpy-context
+<operation> [target] [details]`. In Codex, select the plugin's `context`
+skill or ask naturally, for example "use Grumpy context to improve api-service".
 `target` defaults to the root (`index.md`'s `## Context`) when omitted.
 
 | Operation | Aliases | Effect |
@@ -130,7 +130,7 @@ Shared behavior across all operations:
 - After any write, re-read the file and confirm it parses and the
   body is within the limit. A context that fails its own rules is
   worse than no context.
-- Confirm the CLAUDE.md dedup check happened before writing — mention
+- Confirm the instruction-file dedup check happened before writing — mention
   briefly what was excluded because it was already covered there, so
   the user can catch a bad merge.
 
@@ -141,7 +141,7 @@ Shared behavior across all operations:
 /grumpy-senior-engineer-workflow:grumpy-context set root this is a monorepo with an api-service (FastAPI) and a frontend (React); shared Postgres instance; deploys via the shared Terraform in infra/
 ```
 -> creates `.contexts/index.md` with a body under 500 chars, skipping
-anything the root `CLAUDE.md` already documents (e.g. if CLAUDE.md
+anything the root `AGENTS.md` or `CLAUDE.md` already documents (e.g. if either
 already says "FastAPI + React monorepo", that part is dropped).
 
 **Add a subproject:**

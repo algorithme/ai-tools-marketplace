@@ -20,6 +20,6 @@
     "plan-mode",
     "implementation"
   ],
-  "commands": "./commands/",
-  "hooks": "./hooks.json"
+  "skills": "./skills/",
+  "hooks": "./hooks.codex.json"
 }

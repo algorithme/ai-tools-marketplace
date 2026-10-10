@@ -1,22 +1,13 @@
 ---
 name: implement
 description: >-
-  Carries out an approved plan — the ten-section plan produced by the
-  `plan` skill, saved to docs/plans/ — turning it into actual code,
-  tests, and documentation updates, under the same guardrails the plan
-  itself was built with: non-negotiables get enforced (not just noted),
-  the file tree and diagram get followed, only tests that buy real
-  confidence get written, the running diff gets watched against the
-  plan's own size estimate, and any real fork the plan didn't already
-  resolve pauses for the user instead of getting picked silently. Use
-  this PROACTIVELY whenever the user says "implement this plan", "let's
-  build it", "go ahead and code this up", "start on <plan file>", hands
-  over a path under docs/plans/, or asks to proceed right after a plan
-  was just approved via ExitPlanMode. Also triggers on the explicit
-  slash command /grumpy-senior-engineer-workflow:grumpy-implement. Do
-  not trigger while a plan is still being drafted or revised — that is
-  the `plan` skill's job; this skill only starts once a plan already
-  has sign-off.
+  Implements a user-approved plan as code, targeted tests, and documentation,
+  preserving its constraints and surfacing real deviations. Use proactively
+  for "implement this plan", "let's build it", "go ahead and code this up",
+  a supplied docs/plans/ path, or a request to proceed after plan approval
+  in Claude or Codex. Also handles the Claude command
+  /grumpy-senior-engineer-workflow:grumpy-implement. Use plan instead while
+  the design is still being drafted or revised.
 ---
 
 # Implement
@@ -36,21 +27,25 @@ writing code.
 
 ## Finding the plan to implement
 
+In Codex, select this plugin's `implement` skill or ask to implement the
+approved Grumpy plan. Claude also supports the slash command below.
+
 - Invoked with a path (`/grumpy-senior-engineer-workflow:grumpy-implement
   docs/plans/<file>.md`) — read that file.
-- Invoked with no path, and a plan was drafted and approved via
-  `ExitPlanMode` earlier in this same conversation — use that plan
-  directly, whether or not it has been saved to `docs/plans/` yet.
+- Invoked with no path, and the user explicitly approved a plan earlier
+  in this same conversation (including via Claude's `ExitPlanMode`) — use
+  that plan directly, whether or not it has been saved to `docs/plans/` yet.
 - Invoked with no path and no plan approved this session — ask which
   plan to implement rather than guessing at one from earlier
   conversation.
 
-Once you have the plan, confirm it actually carries the `plan` skill's
-ten sections with real content. A plan missing pieces was never really
-approved — either the `ExitPlanMode` gate was bypassed, or the file
-predates this convention. Say plainly which sections are missing or
-empty and ask whether to fill them in now or proceed with what's there;
-don't silently build from a plan you can't fully account for.
+Once you have the plan, check the `plan` skill's ten sections for real
+content and establish approval from the user's instruction or conversation.
+A hook passing or a file having ten headings does not establish approval;
+missing headings do not cancel approval already given. Surface substantive
+gaps that affect safe implementation and ask about unresolved choices.
+Proceed with authorized work when the intent is clear, without demanding
+reapproval just to repair formatting.
 
 If the plan only lives in this conversation and the build is going to
 outlast the current turn, save it to `docs/plans/<slug>.md` first — see
@@ -61,6 +56,8 @@ was approved in.
 ## Executing the ten sections
 
 ### 1. Non-negotiables
+Read applicable `AGENTS.md`/`CLAUDE.md` instructions for the work now;
+the plan does not replace current repository guidance.
 Enforce them, don't just re-read them. If something you're about to
 write would violate one, stop before you write it — a non-negotiable
 was named unconditional at plan time, so running into one isn't a
@@ -72,9 +69,9 @@ do.
 *new* fork discovered while building — the two functions the plan
 listed separately turn out to need to be atomic, the library the plan
 assumed doesn't actually support the approach — gets the same
-treatment: explain what's actually at stake, then ask with
-`AskUserQuestion`. Don't resolve it yourself because stopping feels like
-friction; see "Handling deviations" below for where the line actually
+treatment: explain what's actually at stake, then use the runtime's
+available question mechanism. Don't resolve it yourself because stopping
+feels like friction; see "Handling deviations" below for where the line actually
 sits.
 
 ### 3. Models
@@ -135,7 +132,7 @@ Two separate moments, not one:
 
 ### 10. Documentation check
 Actually make the updates the plan named — the README line, the
-runbook, the `CLAUDE.md` pointer — as part of finishing, not as a TODO
+runbook, the project instruction pointer — as part of finishing, not as a TODO
 left for later. "Named in the plan" and "done" should end up describing
 the same list.
 
@@ -151,7 +148,9 @@ two kinds, and they don't deserve the same response:
   adds, removes, or reshapes a Model/Function/file the plan's rationale
   doesn't cover. Stop. Explain what changed and why, in plain terms —
   the same context-before-the-question rule `plan` uses — then ask with
-  `AskUserQuestion`. The user approved a specific shape; building past
+  the available question tool (`AskUserQuestion` in Claude,
+  `request_user_input` in Codex), or in conversation if unavailable.
+  The user approved a specific shape; building past
   it without asking spends trust the *plan* earned, not trust this
   skill has on its own.
 
@@ -173,11 +172,16 @@ plainly rather than reporting success you didn't check.
 
 ## Companion skills
 
+Consult companions only when relevant and available. If one is unavailable,
+disclose that limitation and follow applicable repository guidance without
+claiming to have loaded it. Preserve the user's existing authorization;
+ask only for an unresolved choice or approval the workflow still needs.
+
 - **`adr`** — see section 9. Both directions (recording a decision that's
   about to ship, and flipping `accepted` → `implemented` once it has)
   happen from inside this skill's flow, but only the `adr` skill itself
   ever writes to `docs/adr/`.
-- **`fastapi-resilience`** — consult it for any code this plan adds that
+- **`fastapi-resilience`** — when available, consult it for any code this plan adds that
   calls outside the process: HTTP, a database, gRPC, a broker (Kafka,
   RabbitMQ). Its retry/backoff/timeout patterns apply regardless of
   whether the codebase uses FastAPI at all.
@@ -191,9 +195,8 @@ plainly rather than reporting success you didn't check.
 
 ## What not to do
 
-- Don't build from a plan you haven't confirmed still has all ten
-  sections with real content — a hollow section didn't actually get
-  approved, it got skipped.
+- Don't treat formatting or hook success as proof of approval; resolve
+  substantive gaps while honoring approval already given.
 - Don't silently expand the file tree, rename a model, or drop/add a
   test to route around asking — see "Handling deviations."
 - Don't draft or write to `docs/adr/` yourself; flag it and hand off to

@@ -1,21 +1,13 @@
 ---
 name: plan
 description: >-
-  Defines the required structure of any Plan-mode deliverable and how to
-  work with the user while drafting one — a fixed checklist of ten
-  sections (non-negotiables, decisions, models, functions, diagram, file
-  tree, tests, size check, ADR check, documentation check) that must all
-  be present, even if some are honestly "none," before a plan is
-  presented for approval. Use this PROACTIVELY whenever asked to plan,
-  design, scope, or architect a new task or feature; before calling
-  EnterPlanMode; while drafting the plan itself; and before calling
-  ExitPlanMode. Also triggers on "how should we approach X", "make a
-  plan for Y", "design this feature", "what's your plan for...", or the
-  explicit slash command /grumpy-senior-engineer-workflow:grumpy-plan. A
-  hook gates ExitPlanMode against this same checklist, so a plan missing
-  required sections gets bounced back before the user ever sees it —
-  treat that gate as a backstop, not the reason to satisfy this skill;
-  get it right the first time.
+  Drafts plans with ten required sections covering constraints, decisions,
+  models, operations, diagrams, files, tests, size, ADRs, and documentation.
+  Use proactively when asked to plan, design, scope, or architect work,
+  while drafting a plan, or before presenting one for approval in Claude
+  or Codex. Also handles the Claude command
+  /grumpy-senior-engineer-workflow:grumpy-plan. Ends at approval and saving;
+  use implement for a plan the user has already approved.
 ---
 
 # Plan
@@ -32,16 +24,57 @@ This skill doesn't tell you how to solve the problem. It tells you what
 a finished plan has to show, and how to work with the user while you
 get there.
 
+## Runtime and approval
+
+In Claude, use `EnterPlanMode`/`ExitPlanMode` when available; the existing
+prompt hooks check readiness and the ten sections. In Codex, select this
+plugin's `plan` skill or ask for a Grumpy plan in natural language. Use the
+host's planning mode where available; do not assume Claude tool names exist.
+
+For completed Codex plans, the entire final message is one
+`<proposed_plan>...</proposed_plan>` envelope, with each tag on its own line.
+Inside it, use the ten exact section names below as Markdown headings,
+optionally numbered. Keep clarification replies outside this envelope.
+Codex's Stop hook checks structure only when it receives the plan text;
+native Plan Mode can omit that text. It cannot judge quality or prove approval.
+
+Before presenting a completed Codex plan, run the shipped checker yourself.
+Set `grumpy_plan_skill_dir` to the absolute directory containing this loaded
+`SKILL.md`, using shell-safe quoting. Resolve the script from that directory;
+`PLUGIN_ROOT` is not guaranteed to exist in ordinary tool commands.
+Use Bash and Python 3 with the following stdin template, replacing the body
+with the exact complete final plan; do not run the illustrative body literally:
+
+```bash
+python3 "$grumpy_plan_skill_dir/../../hooks/codex-plan.py" --check-plan <<'GRUMPY_PLAN'
+<proposed_plan>
+[Exact complete plan, including all ten sections, goes here.]
+</proposed_plan>
+GRUMPY_PLAN
+```
+
+Fix any reported structural errors, then rerun with the corrected text.
+Any later edit requires another check before presenting. This writes no plan
+file and can run in Plan Mode before approval. Skip this check for clarification
+replies. If Bash, Python 3, or the checker cannot run, disclose that structural
+validation was not completed; do not claim it passed. This is a skill-directed
+tool call, not automatic native-hook enforcement or semantic review.
+
+Use the runtime's question tool when available (`AskUserQuestion` in
+Claude, `request_user_input` in Codex), otherwise ask in conversation.
+Present the complete plan and await explicit user approval before saving
+or implementing it. Hook success and leaving planning mode are not approval.
+
 ## Before drafting: is there enough to plan from?
 
 A plan built around a guessed-at goal doesn't save anyone time — it
 just moves the misunderstanding two rounds later, now dressed up with a
-diagram and a file tree that make it look considered. Before calling
-`EnterPlanMode`, check two things:
+diagram and a file tree that make it look considered. Before drafting
+(and before `EnterPlanMode` in Claude), check two things:
 
 1. **Context** — is it reasonably clear what part of the system or
    product this touches, and why now? This can come from the request
-   itself, or from what's already loaded (`CLAUDE.md`, `.contexts/`,
+   itself, or from what's already loaded (`AGENTS.md`, `CLAUDE.md`, `.contexts/`,
    `docs/adr/`, earlier conversation) — it doesn't have to be restated
    if it's already known.
 2. **Scope** — is there at least a rough boundary of what "done" looks
@@ -49,22 +82,21 @@ diagram and a file tree that make it look considered. Before calling
    "make the billing service better" doesn't.
 
 If either is genuinely missing, don't guess and don't start drafting —
-use `AskUserQuestion` to ask for exactly what's missing, then proceed.
+use the available question mechanism to ask for exactly what's missing, then proceed.
 
 Notably absent from this list: a stated design or implementation
 approach. Don't demand that from the user upfront — proposing an
 approach (and surfacing the forks in it) is the plan's job, not a
-prerequisite for starting one. Requiring Context and Scope keeps Claude
+prerequisite for starting one. Requiring Context and Scope keeps the agent
 from inventing the goal; requiring Design too would just shift the
 plan's own work onto the user before it begins.
 
-An `EnterPlanMode` hook backstops this the same way the `ExitPlanMode`
-hook backstops the ten sections below — but the aim is to never need
-it: ask before you plan, not because a hook made you.
+Claude's `EnterPlanMode` hook checks readiness; Codex supplies a planning
+reminder. In either runtime, establish context and scope yourself.
 
 ## The ten sections
 
-Every plan has all ten of these, in this order, before `ExitPlanMode`.
+Every completed plan has all ten of these, in this order, before approval.
 "None — because X" is a completely valid answer for several of them.
 An absent section reads as *forgot to check*, not *doesn't apply* — the
 point of the list is to make the check visible, not to pad the plan.
@@ -85,7 +117,8 @@ point of the list is to make the check visible, not to pad the plan.
 ### 1. Non-negotiables
 
 Before designing anything, check what this project already requires of
-every change — its `CLAUDE.md`, `.contexts/` if the `context` skill is
+every change — its applicable `AGENTS.md`/`CLAUDE.md` instructions,
+`.contexts/` if the `context` skill is
 in use, `docs/adr/INDEX.md` if the `adr` skill is in use. These carry
 things like multi-tenancy, a security posture, a compliance rule, a
 naming convention — whatever this specific codebase has already decided
@@ -99,7 +132,7 @@ inventing a constraint is as bad as missing a real one.
 List every fork in the plan where more than one reasonable approach
 exists — a storage choice, a protocol, a place to put a piece of logic.
 For each one, give the user enough context to actually judge it (the
-options, and what each one costs), then use the `AskUserQuestion` tool
+options, and what each one costs), then use the available question mechanism
 rather than picking on their behalf. The person reading this plan is
 the architect and tech lead; your job is to hand them a real choice with
 real information, not to have already made the call and be looking for
@@ -186,7 +219,7 @@ bar, say so.
 ### 10. Documentation check
 
 Name what needs updating outside the code itself: a README, a
-`CLAUDE.md` line, an ADR's status flipping to `implemented`, a runbook.
+project instruction line, an ADR's status flipping to `implemented`, a runbook.
 "Nothing" is a fine answer when it's actually true.
 
 ## Working with the user
@@ -205,7 +238,7 @@ Name what needs updating outside the code itself: a README, a
 
 ## Saving the plan
 
-Once `ExitPlanMode` is approved, write the plan — all ten sections,
+Once the user approves the plan, write it — all ten sections,
 exactly as approved — to `docs/plans/<slug>.md`, where `<slug>` is a
 kebab-case cut of the task (the same convention `docs/adr/` already uses
 for its own filenames). This is what makes a plan durable past the
@@ -225,16 +258,20 @@ common case, not the exception.
 
 ## Companion skills
 
+Consult companions only when relevant and available. If a referenced
+skill is unavailable, say so briefly and follow applicable repository
+guidance; never claim to have consulted it or invent its instructions.
+
 - **`adr`** — see section 9. This skill notices decision-worthy moments;
   it never drafts the ADR itself.
-- **`fastapi-resilience`** — consult it for design guidance whenever the
+- **`fastapi-resilience`** — when available, consult it for design guidance whenever the
   plan includes a call to anything outside the process: an HTTP call, a
   database, a gRPC stub, a broker publish (Kafka, RabbitMQ). Its
   retry/backoff/timeout patterns are the point, not the word "FastAPI"
   in its name — pull from it even in a codebase that isn't using
   FastAPI at all.
 - **`implement`** — takes over once a plan is saved and approved. This
-  skill's job ends at `ExitPlanMode` and the save step above, not at the
+  skill's job ends at user approval and the save step above, not at the
   first line of code.
 - **`humanizer` and PR/commit-convention skills** are not this skill's
   job to invoke. They trigger on their own once actual commit messages
@@ -246,15 +283,13 @@ common case, not the exception.
 
 - Don't pad a section with restated context just so it isn't empty —
   "none, because X" is a complete answer.
-- Don't resolve a real fork silently to save a round-trip; that's the
-  one thing `AskUserQuestion` exists for here.
+- Don't resolve a real fork silently to save a round-trip; ask the user.
 - Don't draft an ADR inside a plan — flag it and stop, per section 9.
 - Don't let the diagram or file tree drift from what the Models/
   Functions sections actually say; a plan that contradicts itself is
   worse than a plan that admits it doesn't know something yet.
-- Don't treat the `ExitPlanMode` gate as the actual quality bar. It
-  catches missing or hollow sections; it can't tell you the plan is
-  well thought out. That's still your job.
+- Don't treat a runtime hook as the actual quality bar or as consent.
+  You remain responsible for the plan's substance and user approval.
 
 ## Worked example
 

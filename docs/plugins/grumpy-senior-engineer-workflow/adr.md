@@ -27,8 +27,8 @@ proposed -> accepted -> implemented -> superseded
                      \-> deprecated       (from any non-terminal state)
 ```
 
-Nine operations, available as a slash command or triggered from natural
-language:
+Nine operations, available through Claude's slash command or the shared skill
+in either runtime:
 
 | Operation | Effect |
 | --- | --- |
@@ -45,9 +45,13 @@ language:
 A `SessionStart` hook prints a one-line pointer ("N ADRs recorded, see
 docs/adr/INDEX.md") when the index exists, rather than the full index —
 unlike `.contexts/`, it has no size cap and can grow past what's worth
-loading into every session.
+loading into every session. Hooks must be enabled and, in Codex, reviewed.
+The reader counts plain or linked four-digit ADR IDs; unreadable indexes do
+not block startup.
 
 ## Usage
+
+Claude command examples (Codex uses skill selection or natural language):
 
 ```text
 /grumpy-senior-engineer-workflow:grumpy-adr new we decided to use Postgres instead of Mongo for billing, we need cross-table transactions

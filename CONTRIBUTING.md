@@ -6,6 +6,8 @@ Contributions are welcome. This document covers how to add a plugin, validate yo
 
 Install the validation tools used by `scripts/validate.sh`:
 
+Python 3 is required for Codex package checks and Grumpy's hook regression tests.
+
 ```bash
 # JSON syntax and Schema
 brew install jq
@@ -52,7 +54,7 @@ See [docs/publishing.md](./docs/publishing.md) for the full workflow including v
 ## Modifying an existing plugin
 
 1. Make your changes.
-2. Bump the `version` in `plugin.json` (otherwise existing users will not receive the update).
+2. Bump the `version` in `plugin.json` (otherwise existing users will not receive the update). For dual-runtime plugins, keep both manifests synchronized.
 3. Add a changelog entry in `CHANGELOG.md` inside the plugin directory.
 4. Run `./scripts/validate.sh`.
 5. Open a PR.

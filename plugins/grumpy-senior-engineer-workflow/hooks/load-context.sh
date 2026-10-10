@@ -6,13 +6,13 @@
 
 set -uo pipefail
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
 INDEX_FILE="$PROJECT_DIR/.contexts/index.md"
 
-if [[ -f "$INDEX_FILE" ]]; then
+if [[ -f "$INDEX_FILE" && -r "$INDEX_FILE" ]] && CONTENT=$(cat "$INDEX_FILE" 2>/dev/null); then
   echo "## Project context (from .contexts/index.md)"
   echo
-  cat "$INDEX_FILE"
+  printf '%s\n' "$CONTENT"
 fi
 
 exit 0
