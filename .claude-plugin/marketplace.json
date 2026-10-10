@@ -5,7 +5,7 @@
     "email": "olivier@devbox.ch"
   },
   "metadata": {
-    "description": "Olivier's personal Claude Code plugin marketplace, with Codex support in Grumpy."
+    "description": "Olivier's personal Claude Code plugin marketplace, with Codex support in Grumpy and Humanizer."
   },
   "plugins": [
     {
@@ -40,6 +40,12 @@
         "plan-mode",
         "implementation"
       ]
+    },
+    {
+      "name": "humanizer",
+      "source": "./plugins/humanizer",
+      "description": "Edit writing to sound more natural using 25 patterns and a draft, audit, and final rewrite. Shared skill for Claude Code and Codex, with standalone reuse in other assistants.",
+      "keywords": ["writing", "editing", "humanizer", "prose"]
     }
   ]
 }

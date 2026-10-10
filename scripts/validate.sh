@@ -7,7 +7,7 @@
 #          4. Shell script safety      — requires: shellcheck
 #          5. Kebab-case plugin names
 #          6. Claude plugin validate   — best-effort (requires claude CLI)
-#          7. Codex paths and Grumpy hook tests (Python 3 standard library)
+#          7. Codex package checks and regression tests (Python 3 standard library)
 #
 # Exit codes: 0 = all blocking checks passed, 1 = at least one check failed.
 # See adr/0003-validation-and-ci.md for rationale.
@@ -176,67 +176,15 @@ fi
 echo ""
 echo "── 7. Codex packaging and Grumpy hooks ──"
 if command -v python3 > /dev/null 2>&1; then
-  if python3 - "$ROOT" <<'PY'
-import json
-import shlex
-import sys
-from pathlib import Path
-
-root = Path(sys.argv[1])
-events = {"SessionStart", "SessionEnd", "UserPromptSubmit", "Stop", "Interrupt",
-          "PreToolUse", "PostToolUse", "PermissionRequest", "PreCompact",
-          "PostCompact", "SubagentStart", "SubagentStop"}
-
-
-def local_path(plugin, value):
-    if not isinstance(value, str) or not value.startswith("./"):
-        raise ValueError(f"expected a ./-prefixed package path: {value!r}")
-    target = (plugin / value).resolve()
-    if plugin not in target.parents or not target.exists():
-        raise ValueError(f"missing path or path outside plugin: {value}")
-    return target
-
-
-errors = []
-for manifest in sorted((root / "plugins").glob("*/.codex-plugin/plugin.json")):
-    try:
-        plugin = manifest.parent.parent.resolve()
-        data = json.loads(manifest.read_text())
-        claude = json.loads((plugin / ".claude-plugin/plugin.json").read_text())
-        if any(data.get(key) != claude.get(key) for key in ("name", "version")):
-            raise ValueError("Claude and Codex names/versions differ")
-        if not local_path(plugin, data["skills"]).is_dir():
-            raise ValueError("skills must reference a directory")
-        hooks = json.loads(local_path(plugin, data["hooks"]).read_text())["hooks"]
-        if not isinstance(hooks, dict) or not hooks:
-            raise ValueError("hooks must be a nonempty event map")
-        for event, groups in hooks.items():
-            if event not in events or not isinstance(groups, list) or not groups:
-                raise ValueError(f"unsupported event or invalid groups: {event}")
-            for group in groups:
-                handlers = group["hooks"]
-                if not isinstance(handlers, list) or not handlers:
-                    raise ValueError(f"empty or invalid handlers: {event}")
-                for handler in handlers:
-                    if handler["type"] != "command":
-                        raise ValueError(f"Codex package requires command hooks: {event}")
-                    tokens = shlex.split(handler["command"])
-                    if not tokens:
-                        raise ValueError(f"empty hook command: {event}")
-                    for token in tokens:
-                        for variable in ("${PLUGIN_ROOT}", "${CLAUDE_PLUGIN_ROOT}"):
-                            if token.startswith(variable + "/"):
-                                local_path(plugin, "." + token[len(variable):])
-    except (OSError, ValueError, KeyError, TypeError) as exc:
-        errors.append(f"{manifest.relative_to(root)}: {exc}")
-if errors:
-    print("\n".join(errors), file=sys.stderr)
-    sys.exit(1)
-PY
-  then
+  if python3 -B "$ROOT/scripts/validate_codex_plugins.py" "$ROOT"; then
     pass "Codex package identities, hook JSON and local paths"
   else
     fail "Codex package contracts"
+  fi
+  if python3 -B -m unittest discover -s "$ROOT/scripts/tests" -p 'test_*.py'; then
+    pass "Codex package validator tests"
+  else
+    fail "Codex package validator tests"
   fi
   if python3 -B -m unittest discover -s "$ROOT/plugins/grumpy-senior-engineer-workflow/tests" -p 'test_*.py'; then
     pass "Grumpy hook tests"
