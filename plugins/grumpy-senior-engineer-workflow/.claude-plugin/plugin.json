@@ -1,6 +1,6 @@
 {
   "name": "grumpy-senior-engineer-workflow",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Shared Claude Code and Codex workflow skills for compact project context, approved architecture decision records, ten-section plans, and implementation of approved plans. Claude uses prompt-based planning gates; Codex uses a reminder and local structural checks. User approval remains required.",
   "author": {
     "name": "Olivier Morel",

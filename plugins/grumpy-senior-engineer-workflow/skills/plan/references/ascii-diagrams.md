@@ -1,10 +1,12 @@
 # ASCII diagram templates
 
-Three shapes cover almost every plan. Pick the one that matches what
-actually needs explaining — don't draw all three out of habit.
+Pick the view that answers the reader's question. Use a context/component
+view for boundaries and responsibilities, then a behavioral or model view
+only when it explains something else. Don't draw every shape out of habit.
 
 | Shape | Use it when the plan... | Skip it when... |
 |---|---|---|
+| Context / component | ...needs to explain actors, system boundaries, or which component owns a responsibility | those relationships are already clear and unchanged |
 | Sequence | ...adds or changes an interaction between components/services/actors over time | there's only one component involved |
 | Class / component | ...introduces or reshapes data models and their relationships | no new model or structural relationship exists |
 | State | ...adds a status field or lifecycle with real transitions | the "state" is just a boolean with no transition rules |
@@ -12,6 +14,40 @@ actually needs explaining — don't draw all three out of habit.
 A diagram earns its place by showing something prose would take several
 sentences to say precisely. If the change is "add a field," it usually
 doesn't need one — say so in the plan and move on.
+For a simple prose or link correction, explain why no diagram is needed
+instead of drawing the edit.
+
+## Context / component diagram
+
+Use C4-inspired boundaries and responsibilities to orient the reader in
+the affected area. Show the actors and external systems that matter to
+the change; expand beyond that area only when the change crosses it.
+This is an ASCII explanation, not a requirement for formal C4 compliance.
+
+```text
+[Customer]
+    |
+    | submit order
+    v
++---------------- Shop service boundary -----------------+
+| +-------------------+      +--------------------------+ |
+| | Order API         | save | Order repository         | |
+| | validates orders  |----->| stores order state       | |
+| +-------------------+      +--------------------------+ |
++----------|---------------------------------------------+
+           | authorize payment
+           v
++--------------------+
+| Payment provider   | (external system)
+| authorizes payment |
++--------------------+
+```
+
+Conventions:
+- Name the boundary and give each component a short responsibility.
+- Label relationships with the action or data passed between them.
+- Keep names and ownership consistent with the Models, Functions, and
+  File tree sections; use sequence or state views for timing and lifecycle.
 
 ## Sequence diagram
 

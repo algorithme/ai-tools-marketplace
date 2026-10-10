@@ -13,8 +13,30 @@ why a section has no applicable changes instead of writing a bare "none":
 | 4 | Functions | 9 | ADR check |
 | 5 | Diagram | 10 | Documentation check |
 
-Before any of that, the plan needs to be built on something real, not a
-guessed-at goal — see "Before drafting" in the skill.
+Before designing, the agent inspects and briefly explains the affected
+area: its modules, responsibilities, terminology, and current flow. It
+establishes context, scope, and observable success criteria, retaining
+the necessary orientation in Non-negotiables. Broader project exploration
+is useful only when the change crosses those boundaries.
+
+The user owns genuine design choices. The agent first investigates
+discoverable facts, then explains alternatives and costs, recommends an
+option, and asks through the available question tool. It awaits the answer
+before treating the choice as settled; earlier decisions stay settled.
+Applicable repository conventions take precedence over generic defaults,
+including ADR paths and diff-size limits.
+
+Plans define relevant models before operations. Model rules and operation
+contracts are included where they clarify the change, without requiring
+exhaustive schemas or signatures. ASCII views explain boundaries,
+relationships, interactions, or lifecycle as needed; they are C4-inspired
+where useful, without requiring every view or formal C4 compliance.
+
+Tests connect a failure risk to an observable outcome and say whether
+existing checks suffice. Before presentation, the agent checks that names,
+responsibilities, diagrams, file placement, and test expectations agree.
+Keep the plan simple and proportional to the task; detailed drafting
+guidance lives in the skill.
 
 ## Runtime hooks
 
@@ -67,8 +89,8 @@ the agent would plan on its own works without the slash command.
 
 - **[`skills/plan/SKILL.md`](../../../plugins/grumpy-senior-engineer-workflow/skills/plan/SKILL.md)** is the single source of truth for the ten
   required plan sections and how to work with the user while drafting.
-  [`skills/plan/references/ascii-diagrams.md`](../../../plugins/grumpy-senior-engineer-workflow/skills/plan/references/ascii-diagrams.md) holds sequence/class/state
-  diagram templates for section 5.
+  [`skills/plan/references/ascii-diagrams.md`](../../../plugins/grumpy-senior-engineer-workflow/skills/plan/references/ascii-diagrams.md) holds context/component,
+  sequence/class/state templates and selection guidance for section 5.
 - **[`commands/grumpy-plan.md`](../../../plugins/grumpy-senior-engineer-workflow/commands/grumpy-plan.md)** is a thin dispatcher for the explicit
   `/grumpy-senior-engineer-workflow:grumpy-plan` command, same pattern
   as the other two commands.
