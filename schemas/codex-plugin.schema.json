@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Codex compatibility manifest",
-  "description": "The shared-skills and command-hooks subset used by this marketplace, not the full Codex manifest specification.",
+  "description": "The shared-skills and optional command-hooks subset used by this marketplace, not the full Codex manifest specification.",
   "type": "object",
-  "required": ["name", "version", "skills", "hooks"],
+  "required": ["name", "version", "skills"],
   "additionalProperties": false,
   "properties": {
     "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*[a-z0-9]$" },

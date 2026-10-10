@@ -8,6 +8,8 @@ A personal Claude Code plugin marketplace (`olivier-vault`) that catalogs Skills
 
 Grumpy also supports Codex through shared skills and separate runtime hooks.
 See [the Codex guide](./docs/plugins/grumpy-senior-engineer-workflow/codex.md).
+Humanizer shares one instruction-only skill between Claude Code and Codex;
+its [README](./plugins/humanizer/README.md) covers reuse in other assistants.
 
 ## Repository layout
 
@@ -42,8 +44,9 @@ Always run before opening a PR:
 ```
 
 The script validates JSON and runtime-specific schemas, manifest paths and
-identity/version agreement, YAML frontmatter, shell scripts, names, and Grumpy
-hook tests. `claude plugin validate` remains best-effort.
+identity/version agreement, YAML frontmatter, shell scripts, names, package
+validation regression tests, and Grumpy hook tests. `claude plugin validate`
+remains best-effort.
 
 See [adr/0003](./adr/0003-validation-and-ci.md) for rationale.
 
@@ -62,6 +65,7 @@ See [docs/publishing.md](./docs/publishing.md) for the full workflow.
 - **Plugin names**: kebab-case only (`my-plugin`, not `MyPlugin` or `my_plugin`).
 - **Version**: lives in `plugin.json`, never in `marketplace.json` plugin entries (spec: manifest wins silently if both are set).
 - **Dual-runtime plugins**: keep both manifests' names and versions identical; share skills and separate incompatible hooks.
+- **Skills-only plugins**: omit hooks when unnecessary. Codex validates declared hooks or the default `hooks/hooks.json` when present.
 - **Files per PR**: soft cap of 1 000 lines of diff.
 - **ADRs**: write one for every significant architectural decision. Template in `adr/README.md`.
 - **Docs**: prefer many small files (`<150 lines`) over a single large file (see [adr/0004](./adr/0004-documentation-structure.md)).
