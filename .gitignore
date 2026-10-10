@@ -25,3 +25,6 @@ venv/
 
 # Validation artefacts
 .ajv-cache/
+
+# Plans
+docs/plans/**.*.md

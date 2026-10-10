@@ -70,7 +70,8 @@ or implementing it. Hook success and leaving planning mode are not approval.
 A plan built around a guessed-at goal doesn't save anyone time — it
 just moves the misunderstanding two rounds later, now dressed up with a
 diagram and a file tree that make it look considered. Before drafting
-(and before `EnterPlanMode` in Claude), check two things:
+(and before `EnterPlanMode` in Claude), inspect the request and relevant
+repository evidence first, then check two things:
 
 1. **Context** — is it reasonably clear what part of the system or
    product this touches, and why now? This can come from the request
@@ -79,10 +80,18 @@ diagram and a file tree that make it look considered. Before drafting
    if it's already known.
 2. **Scope** — is there at least a rough boundary of what "done" looks
    like? "Add idempotent retries to the billing publisher" has one;
-   "make the billing service better" doesn't.
+   "make the billing service better" doesn't. State the observable
+   success criteria so the user can judge whether the change works.
 
 If either is genuinely missing, don't guess and don't start drafting —
 use the available question mechanism to ask for exactly what's missing, then proceed.
+
+Before proposing a design, briefly explain the affected area's modules,
+responsibilities, key terms, and current flow. Ground this in the actual
+code and project guidance; don't ask the user to supply discoverable facts.
+Keep the explanation local to the task, expanding when it crosses
+boundaries. Once context and scope are clear, identify and define relevant
+models before designing the operations that use them.
 
 Notably absent from this list: a stated design or implementation
 approach. Don't demand that from the user upfront — proposing an
@@ -103,13 +112,13 @@ point of the list is to make the check visible, not to pad the plan.
 
 | # | Section | What goes there |
 |---|---|---|
-| 1 | **Non-negotiables** | The standing constraints this task must honor, and how the plan honors them. |
+| 1 | **Non-negotiables** | Relevant context, scope, success criteria, and the standing constraints this task must honor. |
 | 2 | **Decisions** | Every point with more than one reasonable approach, handed to the user — not resolved silently. |
-| 3 | **Models** | Domain/data models introduced or changed, named with the project's real current names. |
-| 4 | **Functions** | The operations required, one line each — no implementations yet. |
-| 5 | **Diagram** | An ASCII-art sketch of the new logic: sequence, class, or state. |
+| 3 | **Models** | Define introduced, changed, and essential reused models using current project names. |
+| 4 | **Functions** | Required operations, their owners and purposes, with contracts where useful — no implementations. |
+| 5 | **Diagram** | ASCII views of relevant boundaries, relationships, interactions, or states. |
 | 6 | **File tree** | Only the files this plan touches, each with a one-line reason. |
-| 7 | **Tests** | The specific tests worth writing, tied to real risk. |
+| 7 | **Tests** | Specific scenarios, risks, and observable outcomes; identify existing checks or new tests needed. |
 | 8 | **Size check** | An estimate of the diff, and a split proposal if it's large. |
 | 9 | **ADR check** | Whether this plan settles something worth recording — and where, not how. |
 | 10 | **Documentation check** | What outside the code itself needs updating. |
@@ -118,25 +127,32 @@ point of the list is to make the check visible, not to pad the plan.
 
 Before designing anything, check what this project already requires of
 every change — its applicable `AGENTS.md`/`CLAUDE.md` instructions,
-`.contexts/` if the `context` skill is
-in use, `docs/adr/INDEX.md` if the `adr` skill is in use. These carry
-things like multi-tenancy, a security posture, a compliance rule, a
-naming convention — whatever this specific codebase has already decided
+`.contexts/` if the `context` skill is in use, and the repository's ADR
+index or records if the `adr` skill is in use. Follow project conventions
+for paths and diff limits; this skill's defaults do not override them.
+Project guidance carries things like multi-tenancy, a security posture,
+a compliance rule, a naming convention — whatever this codebase has decided
 it can't compromise on. Name the ones that actually bite for this task
 and say how the plan honors each. If it's genuinely unclear what this
 project's non-negotiables are, ask the user rather than guessing —
 inventing a constraint is as bad as missing a real one.
 
+Retain a short recap of the affected area's responsibilities, terminology,
+and current flow where needed to understand the plan. State the task's
+scope and observable success criteria here, without repeating the whole
+discovery discussion or adding an eleventh section.
+
 ### 2. Decisions
 
 List every fork in the plan where more than one reasonable approach
 exists — a storage choice, a protocol, a place to put a piece of logic.
-For each one, give the user enough context to actually judge it (the
-options, and what each one costs), then use the available question mechanism
-rather than picking on their behalf. The person reading this plan is
-the architect and tech lead; your job is to hand them a real choice with
-real information, not to have already made the call and be looking for
-a rubber stamp. If there's genuinely no fork — the approach was
+The user owns every genuine design choice. Inspect evidence first to
+separate discoverable facts from choices. For each unresolved choice,
+explain the options and their costs, recommend one with a reason, then use
+the available question tool and await the answer before treating it as
+settled. Respect decisions already made and established repository
+conventions without asking again; surface any new conflict rather than
+silently overriding them. If there's genuinely no fork — the approach was
 unambiguous once you understood the task — say that plainly instead of
 inventing a decision to fill the section.
 
@@ -148,29 +164,42 @@ researching.
 
 ### 3. Models
 
-Every domain or data model this plan introduces or changes, listed
-before a single function name — a model shapes the functions that use
-it, not the other way round. Use the project's real, current names.
-Never carry forward a placeholder or internal codename from an earlier
-phase (a proof-of-concept nickname that quietly became the production
-name is a tax every future reader pays); if you're unsure what the
-current name is, that's a non-negotiables question, not a guess.
+Define the domain or data models introduced, changed, or reused that are
+essential to understanding this task, before designing operations. For
+each, explain its meaning, relevant fields or states, relationships, and
+rules that must remain true. Distinguish new, changed, and reused models.
+Use the project's real, current names and clearly label proposed new
+models; inspect the source before asking about an ambiguous name.
+
+Cover what the change needs, not every model or field in the repository.
+Full schemas are useful only when they resolve an ambiguity. If the task
+has no model implications, say "None" with the reason instead of inventing
+a model to fill the section.
 
 ### 4. Functions
 
-The operations the plan actually requires, one line each — what it
-does and why it exists, not how. If you find yourself writing more than
-a sentence per function, you're implementing in the plan; stop and move
-that detail to where it belongs, in the code.
+Name the functions, methods, or other operations the plan requires, with
+their owner and purpose. Add inputs, outputs, side effects, or failure
+behavior where needed to resolve a concrete ambiguity. Use existing names
+when applicable and distinguish proposed new operations.
+
+Keep each description compact, usually one line. Specify useful contracts,
+not implementations or speculative signatures; expand only where leaving
+something out would force the implementer to make a design choice.
+If no code operations change, explain that instead of relabeling a prose
+edit as a function.
 
 ### 5. Diagram
 
-An ASCII-art sketch of the new logic — sequence, class/component, or
-state, whichever one actually clarifies *this* change. See
-`references/ascii-diagrams.md` for templates and guidance on picking
-the right shape. A diagram that's just a box saying "does the thing"
-isn't a diagram, it's decoration; if the change has no interesting flow
-to show, say so instead of drawing one anyway.
+Use ASCII-art views that clarify this change: context/component views for
+actors, boundaries, and responsibilities; class views for model
+relationships; sequence or state views for behavior. Draw on C4's emphasis
+on context and responsibility without requiring formal C4 compliance or
+every diagram type. See `references/ascii-diagrams.md` for templates and
+guidance on picking the right shape. A box saying "does the thing"
+isn't a diagram, it's decoration; if no view helps explain the change,
+say so instead of drawing one anyway. A simple prose or link correction
+needs no structural or behavioral diagram; explain that in this section.
 
 ### 6. File tree
 
@@ -191,18 +220,23 @@ tests/
 
 ### 7. Tests
 
-Name the specific tests worth writing, and why each one buys real
-confidence — not a coverage number. A test that only asserts a config
-file contains the values you just typed into it isn't confidence, it's
-an echo; skip those. If a change genuinely doesn't need new tests (a
-doc fix, a rename with no behavior change), say so.
+Name each useful scenario, the failure risk it addresses, and the expected
+observable outcome. Identify whether existing checks suffice, should be
+extended, or a new test is needed. Choose checks for the confidence they
+buy in behavior or setup, not a coverage number. If their value remains
+uncertain, explain the cost/confidence tradeoff and ask the user.
+
+A test that only asserts a config file contains the values you just typed
+into it isn't confidence, it's an echo; skip those. If a change genuinely
+doesn't need new tests (a doc fix, a rename with no behavior change), say so.
 
 ### 8. Size check
 
-Estimate roughly how large the resulting diff will be. Past ~2000
-changed lines, flag it and propose a concrete way to split the work
-into smaller, independently mergeable pieces — phased by layer, by
-feature slice, whatever actually divides cleanly for this change.
+Estimate roughly how large the resulting diff will be. Apply the
+repository's diff limit when it has one; otherwise use ~2000 changed
+lines as the threshold. Above that limit, flag it and propose a concrete
+way to split the work into smaller, independently mergeable pieces — by
+layer, by feature slice, whatever actually divides cleanly for this change.
 Finding out a PR is too big during review costs the reviewer's time and
 yours; catching it here costs nothing.
 
@@ -214,7 +248,8 @@ passed over. If so, say which decision and point at the `adr` skill
 (`/grumpy-senior-engineer-workflow:grumpy-adr new ...`) rather than
 drafting the ADR inline here — this section's job is to *notice*, the
 `adr` skill's job is to *record*. If nothing in this plan rises to that
-bar, say so.
+bar, say so. Point to the repository's established ADR location and naming
+convention; use `docs/adr/` only when no project convention exists.
 
 ### 10. Documentation check
 
@@ -231,17 +266,26 @@ project instruction line, an ADR's status flipping to `implemented`, a runbook.
 - **Plain language.** Explain the plan the way you'd explain it out
   loud to a colleague, not the way you'd write a paper. Precision
   matters more than vocabulary.
-- **Small beats clever.** Prefer the design with the smaller footprint
-  and the shorter files when more than one design would honestly work —
-  this is a bias to apply while drafting, not just a note in the size
-  check at the end.
+- **KISS — small beats clever.** Reuse existing concepts and prefer the
+  smaller design when it meets the need. Avoid abstractions or extra scope
+  without a present reason. Scale explanation to the task; simplicity
+  informs the recommendation, not permission to settle choices silently.
+
+## Before presenting
+
+Check that model names and rules, operation owners and contracts, diagram
+labels and flow, touched-file responsibilities, and test expectations
+agree. Each success criterion needs an appropriate confidence check;
+that can be an existing test or a manual check, not necessarily new code.
+Reconcile inconsistencies and resolve outstanding design choices with the
+user before presenting a completed plan. Then run the applicable runtime
+checks above; structural success does not replace this review or approval.
 
 ## Saving the plan
 
 Once the user approves the plan, write it — all ten sections,
 exactly as approved — to `docs/plans/<slug>.md`, where `<slug>` is a
-kebab-case cut of the task (the same convention `docs/adr/` already uses
-for its own filenames). This is what makes a plan durable past the
+kebab-case cut of the task. This is what makes a plan durable past the
 conversation that produced it: the `implement` skill reads from this
 file, and so does anyone resuming the work in a later session.
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.4.1] - 2026-10-10
+
+- Ground plans in the affected project's structure, terminology, and success criteria.
+- Clarify user ownership of design choices and define relevant models before operations,
+  adding contracts where they resolve ambiguity.
+- Add ASCII context/component guidance and a final consistency review connecting
+  models, operations, diagrams, files, and confidence checks.
+- Follow repository ADR paths and diff limits; preserve the ten-section format,
+  runtime hooks, structural preflight, and explicit approval.
+
 ## [1.4.0] - 2026-10-09
 
 - Add a Codex manifest and command-only hooks alongside the existing Claude hooks.
