@@ -1,0 +1,37 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e 'try { const p = require(\"node:path\"); if (!p.isAbsolute(process.env.PLUGIN_ROOT || \"\")) throw Error(); require(p.join(process.env.PLUGIN_ROOT, \"hooks/ponytail.cjs\")).run(\"codex\"); } catch { process.stderr.write(\"Ponytail: hook skipped; runtime is unavailable.\\n\"); }'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e 'try { const p = require(\"node:path\"); if (!p.isAbsolute(process.env.PLUGIN_ROOT || \"\")) throw Error(); require(p.join(process.env.PLUGIN_ROOT, \"hooks/ponytail.cjs\")).run(\"codex\"); } catch { process.stderr.write(\"Ponytail: hook skipped; runtime is unavailable.\\n\"); }'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e 'try { const p = require(\"node:path\"); if (!p.isAbsolute(process.env.PLUGIN_ROOT || \"\")) throw Error(); require(p.join(process.env.PLUGIN_ROOT, \"hooks/ponytail.cjs\")).run(\"codex\"); } catch { process.stderr.write(\"Ponytail: hook skipped; runtime is unavailable.\\n\"); }'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
