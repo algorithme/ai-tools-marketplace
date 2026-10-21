@@ -8,6 +8,7 @@
 #          5. Kebab-case plugin names
 #          6. Claude plugin validate   — best-effort (requires claude CLI)
 #          7. Codex package checks and regression tests (Python 3 standard library)
+#          8. Ponytail hook regression tests (Node.js 24+ built-in test runner)
 #
 # Exit codes: 0 = all blocking checks passed, 1 = at least one check failed.
 # See adr/0003-validation-and-ci.md for rationale.
@@ -193,6 +194,21 @@ if command -v python3 > /dev/null 2>&1; then
   fi
 else
   fail "python3 is required for Codex package and hook validation"
+fi
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 8. Ponytail executable hook tests
+# ──────────────────────────────────────────────────────────────────────────────
+echo ""
+echo "── 8. Ponytail hooks ──"
+if command -v node > /dev/null 2>&1 && node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 24 ? 0 : 1)'; then
+  if node --test "$ROOT/plugins/ponytail/tests/hooks.test.cjs"; then
+    pass "Ponytail hook tests"
+  else
+    fail "Ponytail hook tests"
+  fi
+else
+  fail "Node.js 24 or newer is required for Ponytail hook validation"
 fi
 
 # ──────────────────────────────────────────────────────────────────────────────

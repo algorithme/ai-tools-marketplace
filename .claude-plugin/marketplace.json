@@ -5,7 +5,7 @@
     "email": "olivier@devbox.ch"
   },
   "metadata": {
-    "description": "Olivier's personal Claude Code plugin marketplace, with Codex support in Grumpy and Humanizer."
+    "description": "Olivier's personal Claude Code plugin marketplace, with Codex support in Grumpy, Humanizer, and Ponytail."
   },
   "plugins": [
     {
@@ -46,6 +46,14 @@
       "source": "./plugins/humanizer",
       "description": "Edit writing to sound more natural using 25 patterns and a draft, audit, and final rewrite. Shared skill for Claude Code and Codex, with standalone reuse in other assistants.",
       "keywords": ["writing", "editing", "humanizer", "prose"]
+    },
+    {
+      "name": "ponytail",
+      "source": "./plugins/ponytail",
+      "description": "Simplicity-focused coding, review, audit, debt, and help with conversation-specific modes for Claude Code and Codex. Olivier Morel's adaptation of Dietrich Gebert's Ponytail.",
+      "author": { "name": "Dietrich Gebert (DietrichGebert)", "url": "https://github.com/DietrichGebert" },
+      "license": "MIT",
+      "keywords": ["ponytail", "simplicity", "code-review", "technical-debt"]
     }
   ]
 }

@@ -1,0 +1,20 @@
+{
+  "name": "ponytail",
+  "version": "1.0.0",
+  "description": "Ponytail, olivier-vault edition: five shared skills and isolated conversation modes. Adapted by Olivier Morel from Dietrich Gebert's Ponytail.",
+  "author": {
+    "name": "Dietrich Gebert",
+    "url": "https://github.com/DietrichGebert"
+  },
+  "homepage": "https://github.com/algorithme/ai-tools-marketplace/tree/main/plugins/ponytail",
+  "repository": "https://github.com/algorithme/ai-tools-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "ponytail",
+    "simplicity",
+    "code-review",
+    "technical-debt"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks.codex.json"
+}

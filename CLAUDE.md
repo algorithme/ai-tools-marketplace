@@ -10,6 +10,8 @@ Grumpy also supports Codex through shared skills and separate runtime hooks.
 See [the Codex guide](./docs/plugins/grumpy-senior-engineer-workflow/codex.md).
 Humanizer shares one instruction-only skill between Claude Code and Codex;
 its [README](./plugins/humanizer/README.md) covers reuse in other assistants.
+Ponytail shares five skills and a Node mode adapter with isolated conversation state;
+see its [README](./plugins/ponytail/README.md) and [scoped safety review](./docs/plugins/ponytail/security-review.md).
 
 ## Repository layout
 
@@ -39,13 +41,16 @@ ai-tools-marketplace/
 
 Always run before opening a PR:
 
+Use Python 3 and Node.js 24 or a newer supported release (CI uses Node 24),
+with jq, ajv-cli/ajv-formats, yq, and shellcheck available.
+
 ```bash
 ./scripts/validate.sh
 ```
 
 The script validates JSON and runtime-specific schemas, manifest paths and
 identity/version agreement, YAML frontmatter, shell scripts, names, package
-validation regression tests, and Grumpy hook tests. `claude plugin validate`
+validation regression tests, Grumpy hook tests, and Ponytail's Node hook tests. `claude plugin validate`
 remains best-effort.
 
 See [adr/0003](./adr/0003-validation-and-ci.md) for rationale.
@@ -81,6 +86,7 @@ See `adr/` for the full list. Quick summary:
 | 0003 | `scripts/validate.sh` is the validation authority; `claude plugin validate` is best-effort |
 | 0004 | Modular docs — one file per topic |
 | 0005 | Shared Grumpy package with separate Claude/Codex hooks and Codex preflight |
+| 0006 | Focused Ponytail Node adapter with isolated conversation state and host-specific defaults |
 
 ## Local testing
 
@@ -97,7 +103,7 @@ claude plugin marketplace update olivier-vault
 
 ## Build / lint / test commands
 
-There is no build step. Validation, including Grumpy's hook tests, runs through:
+There is no build step. Validation, including Grumpy and Ponytail hook tests, runs through:
 
 ```bash
 ./scripts/validate.sh

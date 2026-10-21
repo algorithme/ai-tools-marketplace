@@ -7,6 +7,8 @@ Contributions are welcome. This document covers how to add a plugin, validate yo
 Install the validation tools used by `scripts/validate.sh`:
 
 Python 3 is required for Codex package checks and Grumpy's hook regression tests.
+Node.js 24 or a newer supported release is required for Ponytail's hook tests;
+CI uses Node 24. Ponytail supports macOS and Linux.
 
 ```bash
 # JSON syntax and Schema
