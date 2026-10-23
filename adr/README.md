@@ -12,6 +12,7 @@ This directory contains Architecture Decision Records (ADRs) for the `ai-tools-m
 | [0004](./0004-documentation-structure.md) | Documentation structure — modular files over monolithic guides | Accepted |
 | [0005](./0005-dual-runtime-grumpy.md) | Shared Grumpy package with separate runtime hooks | Accepted |
 | [0006](./0006-ponytail-mode-hooks.md) | Focused Ponytail adapter with conversation-isolated state | Accepted |
+| [0007](./0007-grumpy-ponytail-integration.md) | Grumpy coordinates optional Ponytail workflows | Accepted |
 
 ## When to write an ADR
 

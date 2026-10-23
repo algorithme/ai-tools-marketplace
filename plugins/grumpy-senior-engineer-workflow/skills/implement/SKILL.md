@@ -25,6 +25,13 @@ It executes, and it treats every one of the plan's ten sections as a
 promise to keep, not a historical artifact to skim past on the way to
 writing code.
 
+For behavior-changing work, read the shared
+[Ponytail workflow](../plan/references/ponytail-workflow.md). Capture the task
+baseline before edits, follow the approved review checkpoints, and complete a
+cumulative review and comparison of relevant documented shortcuts. Grumpy
+owns completion review even when Ponytail or independent agents are unavailable.
+Pure spelling and formatting changes retain proportionate existing checks.
+
 ## Finding the plan to implement
 
 In Codex, select this plugin's `implement` skill or ask to implement the
@@ -106,16 +113,16 @@ and add a test for it; the plan not anticipating a risk isn't a reason
 to leave it uncovered either.
 
 ### 8. Size check
-Watch the running diff as you build, not just once at the end. If it's
-heading past the plan's own estimate — or past roughly 2000 changed
-lines regardless of what the plan guessed — stop where you are and
+Watch the running diff as you build, not just once at the end. Apply the
+repository's diff limit, or roughly 2000 changed lines if it has none. If it's
+heading past that limit or the plan's own estimate, stop where you are and
 propose a split, the same way the plan would have if it had seen this
 coming.
 
 ### 9. ADR check
 Two separate moments, not one:
 
-- **Before you start** — re-check `docs/adr/INDEX.md` (via the `adr`
+- **Before you start** — re-check the repository's ADR index (via the `adr`
   skill) for anything relevant that landed since the plan was drafted. A
   plan approved two weeks ago can be implementing against a decision
   that's since been superseded.
@@ -170,6 +177,14 @@ exercise it yourself if the environment allows, the same way you would
 before telling a colleague it works. If you can't run it here, say so
 plainly rather than reporting success you didn't check.
 
+For meaningful behavior changes (including skill instructions), follow the
+shared workflow's completion review even if the plan predates that workflow.
+A final milestone review can also serve as completion review when it covers
+the cumulative task change. The implementing agent validates findings, makes
+authorized corrections, and verifies them; the reviewer remains read-only.
+Report material debt changes, review coverage and fallbacks, actual checks,
+and remaining findings. An unresolved blocker prevents a completion claim.
+
 ## Companion skills
 
 Consult companions only when relevant and available. If one is unavailable,
@@ -188,6 +203,10 @@ ask only for an unresolved choice or approval the workflow still needs.
 - **`context`** — if this build lands in an unfamiliar monorepo
   subproject, its `.contexts/<name>.md`, if one exists, is worth a look
   before you start, same as it would be for any work there.
+- **Ponytail companions** — discover `ponytail`, `ponytail-review`, and
+  `ponytail-debt` through the host; use `ponytail-audit` if changed evidence
+  warrants another scoped inspection. The shared workflow defines mode
+  boundaries, explicit targets, and Grumpy-owned fallbacks.
 - **`humanizer`** and the commit/PR-convention skills aren't this
   skill's job to invoke — they trigger on their own once an actual
   commit message or PR description is being written, which happens

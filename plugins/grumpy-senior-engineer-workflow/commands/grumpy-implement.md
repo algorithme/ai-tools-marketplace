@@ -9,7 +9,7 @@ skill isn't loaded yet, load it first — it is the single source of
 truth for how to locate the plan, how each of the ten plan sections
 becomes actionable during a build, when a deviation needs the user's
 input versus when it can just proceed, and which companion skills
-(`adr`, `fastapi-resilience`, `context`) to consult along the way. Do
+(`adr`, `fastapi-resilience`, `context`, and available Ponytail skills) to consult along the way. Do
 not reimplement those rules here; this command only resolves the plan
 argument and hands off to them.
 

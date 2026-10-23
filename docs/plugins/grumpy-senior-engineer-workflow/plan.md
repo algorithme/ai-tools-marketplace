@@ -38,6 +38,25 @@ responsibilities, diagrams, file placement, and test expectations agree.
 Keep the plan simple and proportional to the task; detailed drafting
 guidance lives in the skill.
 
+## Audit and design challenge
+
+Substantial changes involving contracts, persistence, authorization, concurrency,
+dependencies, or cooperating modules receive a bounded audit and an independent
+design challenge. Substantive skill instructions count as behavior. Small fixes
+use ordinary inspection; spelling and formatting edits need no extra stages.
+
+Available Ponytail audit and debt skills inspect affected paths and connected
+contracts. Findings that matter to this task inform Non-negotiables, Decisions,
+Models/Functions, and Tests. Unrelated findings do not authorize cleanup. A fresh
+read-only challenger checks the candidate design against the request and settled
+choices before preflight and approval. If delegation or a companion is missing,
+Grumpy performs the applicable checks and discloses the fallback.
+
+Name review checkpoints only at useful implementation boundaries, with a scope
+and verification requirement in Tests. Keep ten sections. Ponytail's persona
+mode is independent of this workflow; Grumpy never changes it. See the shared
+[workflow rules](../../../plugins/grumpy-senior-engineer-workflow/skills/plan/references/ponytail-workflow.md).
+
 ## Runtime hooks
 
 In Claude Code, three `PreToolUse` hooks reinforce the workflow:

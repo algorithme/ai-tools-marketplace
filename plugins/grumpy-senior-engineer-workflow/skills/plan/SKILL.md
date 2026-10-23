@@ -24,6 +24,13 @@ This skill doesn't tell you how to solve the problem. It tells you what
 a finished plan has to show, and how to work with the user while you
 get there.
 
+For behavior-changing work, read the shared
+[Ponytail workflow](references/ponytail-workflow.md). Use its bounded audit and
+shortcut inspection before designing, and its independent design challenge
+before presenting substantial plans. Grumpy owns these operations; available
+Ponytail skills supply specialist guidance. Missing companions do not block
+planning. Spelling and formatting changes need no additional orchestration.
+
 ## Runtime and approval
 
 In Claude, use `EnterPlanMode`/`ExitPlanMode` when available; the existing
@@ -277,6 +284,11 @@ Check that model names and rules, operation owners and contracts, diagram
 labels and flow, touched-file responsibilities, and test expectations
 agree. Each success criterion needs an appropriate confidence check;
 that can be an existing test or a manual check, not necessarily new code.
+For substantial work, complete the shared workflow's design challenge and
+reconcile its findings here. Keep relevant audit evidence in Non-negotiables,
+alternatives in Decisions, limitations with their affected Models/Functions,
+and justified review checkpoints in Tests. Use the existing ten sections;
+do not add a separate review section or manufacture milestones for review.
 Reconcile inconsistencies and resolve outstanding design choices with the
 user before presenting a completed plan. Then run the applicable runtime
 checks above; structural success does not replace this review or approval.
@@ -308,6 +320,9 @@ guidance; never claim to have consulted it or invent its instructions.
 
 - **`adr`** — see section 9. This skill notices decision-worthy moments;
   it never drafts the ADR itself.
+- **Ponytail companions** — discover `ponytail`, `ponytail-audit`, and
+  `ponytail-debt` through the host; follow the shared workflow's mode, scope,
+  and fallback rules. `ponytail-help` is for setup or usage questions.
 - **`fastapi-resilience`** — when available, consult it for design guidance whenever the
   plan includes a call to anything outside the process: an HTTP call, a
   database, a gRPC stub, a broker publish (Kafka, RabbitMQ). Its
