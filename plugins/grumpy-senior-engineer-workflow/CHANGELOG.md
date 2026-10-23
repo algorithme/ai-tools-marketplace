@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.5.0] - 2026-10-23
+
+- Coordinate optional Ponytail audit, coding guidance, review, and debt skills
+  throughout planning and implementation, preserving mode ownership and approval.
+- Add independent design challenges, explicit review checkpoints and cumulative
+  completion review, with disclosed Grumpy/same-agent fallbacks.
+- Compare documented shortcut limits without treating deleted markers as fixes.
+- Add four paired evaluation fixtures and report the eight-run pilot's observed
+  results separately from package/hook validation.
+- Apply repository diff limits and ADR index conventions during implementation.
+
 ## [1.4.1] - 2026-10-10
 
 - Ground plans in the affected project's structure, terminology, and success criteria.

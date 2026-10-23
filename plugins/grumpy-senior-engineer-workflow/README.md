@@ -9,6 +9,16 @@ final-message text is available. Native Codex Plan Mode relies on the agent
 running that preflight; see the [runtime limits](../../docs/plugins/grumpy-senior-engineer-workflow/codex.md#what-each-runtime-checks).
 User approval remains required.
 
+Planning and implementation now coordinate optional Ponytail skills: scoped
+audits and shortcut inspection inform substantial plans, a fresh agent challenges
+the design, and implementation reviews named milestones and the cumulative change.
+The implementing agent owns fixes and verification; the final handoff compares
+documented limitations. Grumpy performs applicable checks when companions are
+missing and discloses same-agent review when delegation is unavailable.
+Persona modes remain Ponytail's responsibility. Small edits stay proportionate.
+See the [workflow contract](./skills/plan/references/ponytail-workflow.md) and
+[pilot evidence](../../docs/plugins/grumpy-senior-engineer-workflow/ponytail-evaluation.md).
+
 ## The Problem
 
 Project instructions (`CLAUDE.md` or `AGENTS.md`) tend to grow. Agents working

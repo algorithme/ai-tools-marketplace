@@ -27,4 +27,4 @@ venv/
 .ajv-cache/
 
 # Plans
-docs/plans/**.*.md
+docs/plans/

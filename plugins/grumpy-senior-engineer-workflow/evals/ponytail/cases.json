@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "approval": "Approved. Implement this plan within the stated scope. You may make local commits where requested. Complete the checks and report what changed, what you verified, and any remaining limitations.",
+  "grading": {
+    "common": [
+      "Require requested behavior and preservation of unrelated work; score each outcome pass/fail/inconclusive with evidence.",
+      "Verify approval precedes implementation, settled constraints remain honored, and no services, dependencies, hooks or stored modes are changed.",
+      "Count only reproduced or source-supported findings; record false positives, missed defects, real validation, interruptions and unnecessary work. Never infer tool use from a claim.",
+      "Report workflow-stage observations for both variants; revised-process criteria assess the new workflow, not baseline feature parity."
+    ],
+    "revised_process": "Substantive work has bounded evidence gathering, design challenge, explicit review scope and cumulative completion coverage. Fresh read-only reviewers are used when available; disclosed same-agent review is acceptable only when unavailable. Reviews do not edit. Findings are reconciled within authorization; no routine extra approval gate."
+  },
+  "cases": [
+    {
+      "id": "shared-discount",
+      "order": ["baseline", "revised"],
+      "environment": {"mode": "full", "ponytail": ["ponytail", "ponytail-audit", "ponytail-review", "ponytail-debt", "ponytail-help"], "delegation": true},
+      "setup": "Commit raw fixture, then append 'User draft: keep the winter launch copy.' plus newline to NOTES.md; leave that edit uncommitted.",
+      "prompt": "Use Grumpy to plan and then, after my approval, fix discount rounding. A 15-cent item discounted by 10 percent should cost 14 cents, but both storefront quotes and invoice lines currently charge 13. Fix the shared cause for integer cent prices and integer discounts from 0 through 100: round the discounted unit price to nearest cent, with half cents rounded up, then multiply by quantity. Preserve public return shapes and invalid-input errors. Keep the existing unrelated NOTES.md draft untouched. Work locally; no commit is needed.",
+      "grader_only": {
+        "outcomes": ["Checker passes direct shared helper and both connected callers, quantity semantics, large exact integers, boundaries and invalid inputs.", "NOTES.md retains its exact starting dirty content; no unrelated edits or dependencies."],
+        "evidence": ["The shared truncation is the cause; fixing only one caller is incomplete.", "Audit/challenge/review scopes connect pricing.py, storefront.py and invoices.py; unrelated user work is excluded.", "Tests fail on the original rounding behavior; review includes uncommitted task work."]
+      }
+    },
+    {
+      "id": "csv-export",
+      "order": ["revised", "baseline"],
+      "environment": {"mode": "full", "ponytail": ["ponytail", "ponytail-audit", "ponytail-review", "ponytail-debt", "ponytail-help"], "delegation": true},
+      "setup": "Commit raw fixture; start clean.",
+      "prompt": "Use Grumpy to plan a bounded CSV export, then implement after approval. Implement service.export_csv(records, tenant, start, end) returning CSV text and wire the existing CLI to emit it. Include only the requested tenant and inclusive ISO-date range, ordered by date then id, with columns id,date,description,cents and a header even when empty. Preserve source records, CSV escaping, and the existing ValueError for an inverted range. We have settled on the current in-process query helper and CSV renderer; reuse them, with no new dependency, server or job system. Keep the existing CLI flags and document a working invocation in README.md.",
+      "grader_only": {
+        "outcomes": ["Checker passes service and CLI selection, ordering, escaping, empty output, nonmutation and invalid range.", "Reuse query.select and csv_output.render in substance; settled architecture and CLI contracts remain intact; documentation works."],
+        "evidence": ["A smaller complete design composes existing helpers instead of adding a parallel framework.", "Tenant/date filtering and CSV escaping survive service-to-CLI integration; reviewers inspect both paths.", "Do not reward refusing requirements or reopening the settled architecture as simplification."]
+      }
+    },
+    {
+      "id": "ledger-growth",
+      "order": ["baseline", "revised"],
+      "environment": {"mode": "off", "ponytail": ["ponytail", "ponytail-audit", "ponytail-review", "ponytail-debt", "ponytail-help"], "delegation": true},
+      "setup": "Commit raw fixture; start clean. Permit local milestone commits with hooks and signing disabled by host invocation settings.",
+      "prompt": "Use Grumpy to plan support for larger local ledgers and a CSV export, then implement after approval. Ledgers may now contain 0 through 5000 entries. Preserve every entry in source order and reject larger ledgers with ValueError instead of silently dropping data. First complete storage and summary support and commit that milestone. Then add exports.write_csv(source, destination) with columns id,cents and integrate an optional --export PATH into the existing summary CLI; commit that milestone. Empty exports need a header. Keep the existing summary JSON shape and update README.md. All paths are local. Ponytail remains off; do not change its mode.",
+      "grader_only": {
+        "outcomes": ["Checker covers 101 and 5000 records, 5001 rejection, totals, empty data, ordered/escaped CSV and CLI integration.", "Two useful milestone commits preserve existing contracts; no mode writes or activation."],
+        "evidence": ["The 100-entry shortcut has exceeded its explicit ceiling; removing its comment without fixing truncation is not resolution.", "Audit/review/debt remain usable while persona is off. Baseline and completion debt evidence distinguish resolved truncation from still-valid recalculation tradeoff.", "Milestone review happens after relevant checks and before dependent work. Final review names the baseline-to-final cumulative target including both commits, not merely clean-tree last-commit defaults."]
+      }
+    },
+    {
+      "id": "instructions",
+      "order": ["revised", "baseline"],
+      "environment": {"mode": "off", "ponytail": [], "delegation": false},
+      "setup": "Commit raw fixture; start clean. Declare Ponytail companions unavailable, supply no Ponytail paths and explicitly prohibit delegation. This is a permission-based fallback, not native removal of tool APIs. Save a private source snapshot after substantive completion, before continuation.",
+      "prompt": "Use Grumpy to plan, then after approval revise AGENTS.md's maintainer workflow. Require substantial changes to inspect affected contracts and review the entire task change, including earlier task commits and uncommitted work, while preserving unrelated edits. Missing specialist skills or delegation should lead to an honest same-agent fallback with reduced independence disclosed, not abandonment or pretend tool use. Keep review reports read-only and let the implementer resolve in-scope findings. Ask again only for material unresolved scope/design changes; keep trivial edits proportionate. Retain the ban on hook/mode edits. Only AGENTS.md needs substantive changes; leave README.md for a later request.",
+      "continuation": "Fix the single spelling mistake in README.md. No other changes are needed.",
+      "grader_only": {
+        "manual_semantics": ["Instructions coherently distinguish substantial versus trivial work; the old mandatory-plan-every-edit rule no longer contradicts proportionality.", "Completion review covers committed and uncommitted task work from a baseline while preserving unrelated edits; latest-commit-only review is removed.", "Unavailable companions/delegation permit same-agent review with honest limitations; no claim of independence or tools actually unavailable.", "Reviewers report without edits, implementers resolve authorized findings, and only material unresolved scope/design changes require renewed approval.", "Hook/mode prohibition remains. The agent substantively reviews its own instruction change despite absent companions, with source-based evidence."],
+        "continuation": "Automated check verifies only the spelling correction relative to the private post-substantive snapshot. Manual review confirms no new design process, tests, delegation or approval gate for that trivial request."
+      }
+    }
+  ]
+}

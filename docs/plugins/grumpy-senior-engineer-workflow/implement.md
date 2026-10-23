@@ -25,6 +25,37 @@ designed with:
 - The documentation updates the plan named actually get made, not left
   as a note.
 
+## Reviews and documented shortcuts
+
+Before editing, capture the starting revision and relevant staged, unstaged,
+and untracked work. Refresh stale plan evidence only where the affected source
+or assumptions changed. Preserve unrelated user changes, including in touched files.
+
+Run targeted checks and a scoped review at each boundary named in the plan.
+Use a fresh read-only reviewer when supported and permitted; otherwise disclose
+same-agent review. Available `ponytail-review` supplies specialist criteria;
+Grumpy/repository review remains required when that companion is unavailable.
+Provide explicit targets and connected contracts, never a default last commit.
+
+The implementing agent validates findings, fixes authorized defects, and verifies
+corrections. Material design/scope changes return to the user; review itself adds
+no approval gate. Allow one targeted follow-up per checkpoint, not repeated full
+reviews until a clean verdict. Remaining blockers prevent a completion claim.
+
+Completion review covers the cumulative task change, including committed and
+uncommitted work. A final milestone review can satisfy it without a duplicate pass.
+Report actual coverage, reviewer/fallback, fixes, checks, and remaining findings.
+
+Compare relevant documented shortcuts before and after work, including the
+project's own markers, using `ponytail-debt` when available. Preserve limits and
+revisit triggers; flag missing triggers and limits exceeded by the change.
+Verify actual resolution rather than counting deleted markers.
+This is not an inventory of all technical debt, and
+separate ledgers are saved only on request. Reports work while Ponytail is off
+without activating its persona. Pure spelling/formatting edits stay proportionate.
+
+See the shared [workflow rules](../../../plugins/grumpy-senior-engineer-workflow/skills/plan/references/ponytail-workflow.md).
+
 ## Usage
 
 Claude command example (Codex uses skill selection or natural language):
